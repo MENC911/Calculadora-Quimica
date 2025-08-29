@@ -4,28 +4,47 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 
 interface FormData {
   volumenGastado: number;
   normalidadTitulante: number;
   pmeqAnalito: number;
-  factorDilucion: number;
+  usarDilucion: boolean;
+  aforo: number;
+  alicuota: number;
 }
 
 export default function Miligramos() {
   const [resultado, setResultado] = useState<{ miligramos: number; formula: string } | null>(null);
+  const [usarDilucion, setUsarDilucion] = useState(false);
   
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<FormData>({
     defaultValues: {
-      factorDilucion: 1
+      usarDilucion: false,
+      aforo: 100,
+      alicuota: 10
     }
   });
 
+  const watchUsarDilucion = watch("usarDilucion");
+
   const onSubmit = (data: FormData) => {
-    const { volumenGastado, normalidadTitulante, pmeqAnalito, factorDilucion } = data;
+    const { volumenGastado, normalidadTitulante, pmeqAnalito, usarDilucion, aforo, alicuota } = data;
     
-    const miligramos = (volumenGastado * normalidadTitulante * pmeqAnalito * factorDilucion) / 1000;
-    const formula = `(${volumenGastado} mL × ${normalidadTitulante} N × ${pmeqAnalito} mg/meq × ${factorDilucion}) ÷ 1000`;
+    let miligramos: number;
+    let formula: string;
+    
+    if (usarDilucion) {
+      // Fórmula con dilución: mg = (N × mL × pmeq × (aforo/alícuota) × 1000)
+      const factorDilucion = aforo / alicuota;
+      miligramos = (normalidadTitulante * volumenGastado * pmeqAnalito * factorDilucion * 1000);
+      formula = `(${normalidadTitulante} N × ${volumenGastado} mL × ${pmeqAnalito} mg/meq × (${aforo}/${alicuota}) × 1000)`;
+    } else {
+      // Fórmula sin dilución: mg = (N × mL × pmeq)
+      miligramos = (normalidadTitulante * volumenGastado * pmeqAnalito);
+      formula = `(${normalidadTitulante} N × ${volumenGastado} mL × ${pmeqAnalito} mg/meq)`;
+    }
     
     setResultado({ miligramos, formula });
   };
@@ -87,20 +106,56 @@ export default function Miligramos() {
           )}
         </div>
 
-        <div>
-          <Label htmlFor="factorDilucion">Factor de Dilución</Label>
-          <Input
-            id="factorDilucion"
-            type="number"
-            step="any"
-            placeholder="Factor de dilución (opcional)"
-            {...register("factorDilucion", { 
-              min: { value: 0.001, message: "El valor debe ser mayor a 0" }
-            })}
-            data-testid="input-factor-dilucion"
-          />
-          {errors.factorDilucion && (
-            <p className="text-sm text-destructive mt-1">{errors.factorDilucion.message}</p>
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="usarDilucion"
+              checked={watchUsarDilucion}
+              onCheckedChange={(checked) => setUsarDilucion(checked)}
+              {...register("usarDilucion")}
+              data-testid="switch-usar-dilucion"
+            />
+            <Label htmlFor="usarDilucion">¿Usar factor de dilución?</Label>
+          </div>
+          
+          {watchUsarDilucion && (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="aforo">Aforo (mL)</Label>
+                <Input
+                  id="aforo"
+                  type="number"
+                  step="any"
+                  placeholder="Volumen de aforo"
+                  {...register("aforo", { 
+                    required: watchUsarDilucion ? "Este campo es requerido" : false,
+                    min: { value: 0.001, message: "El valor debe ser mayor a 0" }
+                  })}
+                  data-testid="input-aforo"
+                />
+                {errors.aforo && (
+                  <p className="text-sm text-destructive mt-1">{errors.aforo.message}</p>
+                )}
+              </div>
+              
+              <div>
+                <Label htmlFor="alicuota">Alícuota (mL)</Label>
+                <Input
+                  id="alicuota"
+                  type="number"
+                  step="any"
+                  placeholder="Volumen de alícuota"
+                  {...register("alicuota", { 
+                    required: watchUsarDilucion ? "Este campo es requerido" : false,
+                    min: { value: 0.001, message: "El valor debe ser mayor a 0" }
+                  })}
+                  data-testid="input-alicuota"
+                />
+                {errors.alicuota && (
+                  <p className="text-sm text-destructive mt-1">{errors.alicuota.message}</p>
+                )}
+              </div>
+            </div>
           )}
         </div>
 
