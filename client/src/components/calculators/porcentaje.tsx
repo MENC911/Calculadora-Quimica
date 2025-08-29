@@ -13,8 +13,6 @@ interface FormData {
   normalidadTitulante: number;
   volumenTitulante: number;
   pmeqMuestra: number;
-  aforo: number;
-  alicuota: number;
 }
 
 export default function Porcentaje() {
@@ -23,22 +21,20 @@ export default function Porcentaje() {
   
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<FormData>({
     defaultValues: {
-      usarDilucion: false,
-      aforo: 100,
-      alicuota: 10
+      usarDilucion: false
     }
   });
 
   const onSubmit = (data: FormData) => {
-    const { mgAnalito, pesoMuestra, usarDilucion, normalidadTitulante, volumenTitulante, pmeqMuestra, aforo, alicuota } = data;
+    const { mgAnalito, pesoMuestra, usarDilucion, normalidadTitulante, volumenTitulante, pmeqMuestra } = data;
     
     let porcentaje: number;
     let formula: string;
     
     if (usarDilucion) {
-      // Fórmula con dilución: (N × mL × pmeq × (aforo/alícuota) × 100) ÷ gramos_muestra
-      porcentaje = (normalidadTitulante * volumenTitulante * pmeqMuestra * (aforo / alicuota) * 100) / pesoMuestra;
-      formula = `(${normalidadTitulante} N × ${volumenTitulante} mL × ${pmeqMuestra} mg/meq × (${aforo}/${alicuota}) × 100) ÷ ${pesoMuestra} g`;
+      // Fórmula con dilución: (N × mL × pmeq × 100) ÷ gramos_muestra
+      porcentaje = (normalidadTitulante * volumenTitulante * pmeqMuestra * 100) / pesoMuestra;
+      formula = `(${normalidadTitulante} N × ${volumenTitulante} mL × ${pmeqMuestra} mg/meq × 100) ÷ ${pesoMuestra} g`;
     } else {
       // Fórmula simple: (mg analito ÷ mg muestra) × 100
       porcentaje = (mgAnalito / (pesoMuestra * 1000)) * 100;
@@ -144,43 +140,6 @@ export default function Porcentaje() {
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="aforo">Aforo (mL)</Label>
-                <Input
-                  id="aforo"
-                  type="number"
-                  step="any"
-                  placeholder="Volumen de aforo"
-                  {...register("aforo", { 
-                    required: usarDilucion ? "Este campo es requerido" : false,
-                    min: { value: 0.001, message: "El valor debe ser mayor a 0" }
-                  })}
-                  data-testid="input-aforo-porcentaje"
-                />
-                {errors.aforo && (
-                  <p className="text-sm text-destructive mt-1">{errors.aforo.message}</p>
-                )}
-              </div>
-              
-              <div>
-                <Label htmlFor="alicuota">Alícuota (mL)</Label>
-                <Input
-                  id="alicuota"
-                  type="number"
-                  step="any"
-                  placeholder="Volumen de alícuota"
-                  {...register("alicuota", { 
-                    required: usarDilucion ? "Este campo es requerido" : false,
-                    min: { value: 0.001, message: "El valor debe ser mayor a 0" }
-                  })}
-                  data-testid="input-alicuota-porcentaje"
-                />
-                {errors.alicuota && (
-                  <p className="text-sm text-destructive mt-1">{errors.alicuota.message}</p>
-                )}
-              </div>
-            </div>
           </>
         )}
 
