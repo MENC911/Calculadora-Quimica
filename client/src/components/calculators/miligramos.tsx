@@ -19,7 +19,7 @@ export default function Miligramos() {
   const [resultado, setResultado] = useState<{ miligramos: number; formula: string } | null>(null);
   const [usarDilucion, setUsarDilucion] = useState(false);
   
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<FormData>({
     defaultValues: {
       usarDilucion: false,
       aforo: 100,
@@ -110,15 +110,17 @@ export default function Miligramos() {
           <div className="flex items-center space-x-2">
             <Switch
               id="usarDilucion"
-              checked={watchUsarDilucion}
-              onCheckedChange={(checked) => setUsarDilucion(checked)}
-              {...register("usarDilucion")}
+              checked={usarDilucion}
+              onCheckedChange={(checked) => {
+                setUsarDilucion(checked);
+                setValue("usarDilucion", checked);
+              }}
               data-testid="switch-usar-dilucion"
             />
             <Label htmlFor="usarDilucion">¿Usar factor de dilución?</Label>
           </div>
           
-          {watchUsarDilucion && (
+          {usarDilucion && (
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="aforo">Aforo (mL)</Label>
@@ -128,7 +130,7 @@ export default function Miligramos() {
                   step="any"
                   placeholder="Volumen de aforo"
                   {...register("aforo", { 
-                    required: watchUsarDilucion ? "Este campo es requerido" : false,
+                    required: usarDilucion ? "Este campo es requerido" : false,
                     min: { value: 0.001, message: "El valor debe ser mayor a 0" }
                   })}
                   data-testid="input-aforo"
@@ -146,7 +148,7 @@ export default function Miligramos() {
                   step="any"
                   placeholder="Volumen de alícuota"
                   {...register("alicuota", { 
-                    required: watchUsarDilucion ? "Este campo es requerido" : false,
+                    required: usarDilucion ? "Este campo es requerido" : false,
                     min: { value: 0.001, message: "El valor debe ser mayor a 0" }
                   })}
                   data-testid="input-alicuota"
