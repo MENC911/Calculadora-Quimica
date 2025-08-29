@@ -1,0 +1,340 @@
+compuestos = {
+        # Aluminio
+        "Al3+": {"potencial_estandar": -1.662, "carga": +3},
+
+        # Antimonio
+        "SbO+": {"potencial_estandar": +0.581, "carga": +1},  # Sb₂O₃ → 2SbO⁺
+
+        # Arsénico
+        "H2AsO4": {"potencial_estandar": +0.559, "carga": 0},  # H₃AsO₄ → H₃AsO₃
+
+        # Bario
+        "Ba2+": {"potencial_estandar": -2.906, "carga": +2},
+
+        # Bismuto
+        "BiO+": {"potencial_estandar": +0.320, "carga": +1},
+        "BiCl4-": {"potencial_estandar": +0.16, "carga": -1},
+
+        # Bromo
+        "Br2(l)": {"potencial_estandar": +1.065, "carga": 0},
+        "Br2(ac)": {"potencial_estandar": +1.087, "carga": 0},
+        "BrO3-": {"potencial_estandar": +1.52, "carga": -1},  # BrO₃⁻ → Br₂
+        "BrO3-_2": {"potencial_estandar": +1.44, "carga": -1},  # BrO₃⁻ → Br⁻
+
+        # Cadmio
+        "Cd2+": {"potencial_estandar": -0.403, "carga": +2},
+
+        # Calcio
+        "Ca2+": {"potencial_estandar": -2.866, "carga": +2},
+
+        # Carbono
+        "C6H4O2": {"potencial_estandar": +0.699, "carga": 0},  # Quinona → Hidroquinona
+        "CO2": {"potencial_estandar": -0.49, "carga": 0},  # CO₂ → H₂C₂O₄
+
+        # Cerio
+        "Ce4+": {"potencial_estandar": +1.70, "carga": +4},  # En HClO₄ 1 M
+
+        # Cloro
+        "Cl2": {"potencial_estandar": +1.359, "carga": 0},
+        "HClO": {"potencial_estandar": +1.63, "carga": 0},  # HClO → Cl₂
+        "ClO3-": {"potencial_estandar": +1.47, "carga": -1},  # ClO₃⁻ → Cl₂
+
+        # Cromo
+        "Cr3+": {"potencial_estandar": -0.408, "carga": +3},  # Cr³⁺ → Cr²⁺
+        "Cr(s)": {"potencial_estandar": -0.744, "carga": 0},  # Cr³⁺ → Cr(s)
+        "Cr2O7^2-": {"potencial_estandar": +1.33, "carga": -2},  # Cr₂O₇²⁻ → Cr³⁺
+
+        # Cobalto
+        "Co2+": {"potencial_estandar": -0.277, "carga": +2},
+        "Co3+": {"potencial_estandar": +1.808, "carga": +3},  # Co³⁺ → Co²⁺
+
+        # Cobre (¡TODAS las semirreacciones!)
+        "Cu2+": {"potencial_estandar": +0.337, "carga": +2},  # Cu²⁺ → Cu(s)
+        "Cu+": {"potencial_estandar": +0.153, "carga": +1},  # Cu²⁺ → Cu⁺
+        "Cu(s)": {"potencial_estandar": +0.521, "carga": 0},  # Cu⁺ → Cu(s)
+        "CuI(s)": {"potencial_estandar": +0.86, "carga": 0},  # Cu²⁺ + I⁻ → CuI(s)
+        "CuI(s)_2": {"potencial_estandar": -0.185, "carga": 0},  # CuI(s) → Cu(s) + I⁻
+
+        # Flúor
+        "F2": {"potencial_estandar": +3.06, "carga": 0},
+
+        # Hidrógeno
+        "H+": {"potencial_estandar": 0.000, "carga": +1},  # 2H⁺ → H₂
+
+        # Yodo
+        "I2(s)": {"potencial_estandar": +0.5355, "carga": 0},
+        "I2(ac)": {"potencial_estandar": +0.615, "carga": 0},
+        "I3-": {"potencial_estandar": +0.536, "carga": -1},
+        "IO3-": {"potencial_estandar": +1.196, "carga": -1},  # IO₃⁻ → I₂
+        "H3IO6": {"potencial_estandar": +1.601, "carga": 0},  # H₅IO₆ → IO₃⁻
+
+        # Hierro
+        "Fe2+": {"potencial_estandar": -0.440, "carga": +2},
+        "Fe3+": {"potencial_estandar": +0.771, "carga": +3},  # Fe³⁺ → Fe²⁺
+        "Fe(CN)6^3-": {"potencial_estandar": +0.36, "carga": -3},  # [Fe(CN)₆]³⁻ → [Fe(CN)₆]⁴⁻
+
+        # Plomo
+        "Pb2+": {"potencial_estandar": -0.126, "carga": +2},  # Pb²⁺ → Pb(s)
+        "PbO2": {"potencial_estandar": +1.455, "carga": 0},   # PbO₂ → Pb²⁺
+        "PbSO4": {"potencial_estandar": -0.350, "carga": 0},  # PbSO₄ → Pb(s)
+
+        # Litio
+        "Li+": {"potencial_estandar": -3.045, "carga": +1},   # Li⁺ → Li(s)
+
+        # Magnesio
+        "Mg2+": {"potencial_estandar": -2.363, "carga": +2},  # Mg²⁺ → Mg(s)
+
+        # Manganeso
+        "Mn2+": {"potencial_estandar": -1.180, "carga": +2},  # Mn²⁺ → Mn(s)
+        "MnO2": {"potencial_estandar": +1.23, "carga": 0},    # MnO₂ → Mn²⁺
+        "MnO4-": {"potencial_estandar": +1.51, "carga": -1},  # MnO₄⁻ → Mn²⁺
+        "MnO4-_2": {"potencial_estandar": +1.695, "carga": -1},  # MnO₄⁻ → MnO₂
+        "MnO4^2-": {"potencial_estandar": +0.564, "carga": -2},  # MnO₄⁻ → MnO₄²⁻
+
+        # Mercurio (¡todas las variantes!)
+        "Hg2^2+": {"potencial_estandar": +0.788, "carga": +2},  # Hg₂²⁺ → 2Hg(l)
+        "Hg2+": {"potencial_estandar": +0.920, "carga": +2},    # 2Hg²⁺ → Hg₂²⁺
+        "Hg2^2+_2": {"potencial_estandar": +0.854, "carga": +2}, # Hg₂²⁺ → Hg(l)
+        "Hg2Cl2": {"potencial_estandar": +0.268, "carga": 0},    # Hg₂Cl₂ → 2Hg(l)
+        "Hg2SO4": {"potencial_estandar": +0.615, "carga": 0},    # Hg₂SO₄ → 2Hg(l)
+
+        # Níquel
+        "Ni2+": {"potencial_estandar": -0.250, "carga": +2},  # Ni²⁺ → Ni(s)
+
+        # Nitrógeno
+        "N2": {"potencial_estandar": -0.23, "carga": 0},      # N₂ → N₂H₅⁺
+        "HNO2": {"potencial_estandar": +1.00, "carga": 0},    # HNO₂ → NO
+        "NO3-": {"potencial_estandar": +0.94, "carga": -1},   # NO₃⁻ → HNO₂
+
+        # Oxígeno
+        "H2O2": {"potencial_estandar": +1.776, "carga": 0},   # H₂O₂ → H₂O
+        "HO2-": {"potencial_estandar": +0.88, "carga": -1},   # HO₂⁻ → OH⁻
+        "O2": {"potencial_estandar": +1.229, "carga": 0},     # O₂ → H₂O
+        "O2_2": {"potencial_estandar": +0.682, "carga": 0},   # O₂ → H₂O₂
+        "O3": {"potencial_estandar": +2.07, "carga": 0},      # O₃ → O₂
+
+        # Paladio
+        "Pd2+": {"potencial_estandar": +0.987, "carga": +2},  # Pd²⁺ → Pd(s)
+
+        # Platino
+        "PtCl4^2-": {"potencial_estandar": +0.755, "carga": -2},  # PtCl₄²⁻ → Pt(s)
+        "PtCl6^2-": {"potencial_estandar": +0.68, "carga": -2},    # PtCl₆²⁻ → PtCl₄²⁻
+
+        # Potasio
+        "K+": {"potencial_estandar": -2.925, "carga": +1},    # K⁺ → K(s)
+
+        # Selenio
+        "H2SeO3": {"potencial_estandar": +0.740, "carga": 0},  # H₂SeO₃ → Se(s)
+        "SeO4^2-": {"potencial_estandar": +1.15, "carga": -2},  # SeO₄²⁻ → H₂SeO₃
+
+        # Plata (todas las semirreacciones)
+        "Ag+": {"potencial_estandar": +0.799, "carga": +1},   # Ag⁺ → Ag(s)
+        "AgBr": {"potencial_estandar": +0.073, "carga": 0},   # AgBr → Ag(s)
+        "AgCl": {"potencial_estandar": +0.222, "carga": 0},   # AgCl → Ag(s)
+        "Ag(CN)2-": {"potencial_estandar": -0.31, "carga": -1},  # Ag(CN)₂⁻ → Ag(s)
+        "Ag2CrO4": {"potencial_estandar": +0.446, "carga": 0}, # Ag₂CrO₄ → 2Ag(s)
+        "AgI": {"potencial_estandar": -0.151, "carga": 0},     # AgI → Ag(s)
+        "Ag(S2O3)2^3-": {"potencial_estandar": +0.017, "carga": -3},  # Ag(S₂O₃)₂³⁻ → Ag(s)
+
+        # Sodio
+        "Na+": {"potencial_estandar": -2.714, "carga": +1},   # Na⁺ → Na(s)
+
+        # Azufre
+        "S": {"potencial_estandar": +0.141, "carga": 0},      # S → H₂S
+        "H2SO3": {"potencial_estandar": +0.450, "carga": 0},  # H₂SO₃ → S(s)
+        "SO4^2-": {"potencial_estandar": +0.172, "carga": -2}, # SO₄²⁻ → H₂SO₃
+        "S4O6^2-": {"potencial_estandar": +0.08, "carga": -2}, # S₄O₆²⁻ → 2S₂O₃²⁻
+        "S2O8^2-": {"potencial_estandar": +2.01, "carga": -2}, # S₂O₈²⁻ → 2SO₄²⁻
+
+        # Talio
+        "Tl+": {"potencial_estandar": -0.336, "carga": +1},   # Tl⁺ → Tl(s)
+        "Tl3+": {"potencial_estandar": +1.25, "carga": +3},   # Tl³⁺ → Tl⁺
+
+        # Estaño
+        "Sn2+": {"potencial_estandar": -0.136, "carga": +2},  # Sn²⁺ → Sn(s)
+        "Sn4+": {"potencial_estandar": +0.154, "carga": +4},   # Sn⁴⁺ → Sn²⁺
+
+        # Titanio
+        "Ti3+": {"potencial_estandar": -0.369, "carga": +3},  # Ti³⁺ → Ti²⁺
+        "TiO^2+": {"potencial_estandar": +0.099, "carga": +2}, # TiO²⁺ → Ti³⁺
+
+        # Uranio
+        "UO2^2+": {"potencial_estandar": +0.334, "carga": +2}, # UO₂²⁺ → U⁴⁺
+
+        # Vanadio
+        "V3+": {"potencial_estandar": -0.255, "carga": +3},   # V³⁺ → V²⁺
+        "VO^2+": {"potencial_estandar": +0.337, "carga": +2},  # VO²⁺ → V³⁺
+        "V(OH)4+": {"potencial_estandar": +1.00, "carga": +1}, # V(OH)₄⁺ → VO²⁺
+
+        # Zinc
+        "Zn2+": {"potencial_estandar": -0.763, "carga": +2},   # Zn²⁺ → Zn(s)
+        # Aluminio
+        "Al3+": {"potencial_estandar": -1.662, "carga": +3},
+
+        # Antimonio
+        "SbO+": {"potencial_estandar": +0.581, "carga": +1},  # Sb₂O₃ → 2SbO⁺
+
+        # Arsénico
+        "H2AsO4": {"potencial_estandar": +0.559, "carga": 0},  # H₃AsO₄ → H₃AsO₃
+
+        # Bario
+        "Ba2+": {"potencial_estandar": -2.906, "carga": +2},
+
+        # Bismuto
+        "BiO+": {"potencial_estandar": +0.320, "carga": +1},
+        "BiCl4-": {"potencial_estandar": +0.16, "carga": -1},
+
+        # Bromo
+        "Br2(l)": {"potencial_estandar": +1.065, "carga": 0},
+        "Br2(ac)": {"potencial_estandar": +1.087, "carga": 0},
+        "BrO3-": {"potencial_estandar": +1.52, "carga": -1},  # BrO₃⁻ → Br₂
+        "BrO3-_2": {"potencial_estandar": +1.44, "carga": -1},  # BrO₃⁻ → Br⁻
+
+        # Cadmio
+        "Cd2+": {"potencial_estandar": -0.403, "carga": +2},
+
+        # Calcio
+        "Ca2+": {"potencial_estandar": -2.866, "carga": +2},
+
+        # Carbono
+        "C6H4O2": {"potencial_estandar": +0.699, "carga": 0},  # Quinona → Hidroquinona
+        "CO2": {"potencial_estandar": -0.49, "carga": 0},  # CO₂ → H₂C₂O₄
+
+        # Cerio
+        "Ce4+": {"potencial_estandar": +1.70, "carga": +4},  # En HClO₄ 1 M
+
+        # Cloro
+        "Cl2": {"potencial_estandar": +1.359, "carga": 0},
+        "HClO": {"potencial_estandar": +1.63, "carga": 0},  # HClO → Cl₂
+        "ClO3-": {"potencial_estandar": +1.47, "carga": -1},  # ClO₃⁻ → Cl₂
+
+        # Cromo
+        "Cr3+": {"potencial_estandar": -0.408, "carga": +3},  # Cr³⁺ → Cr²⁺
+        "Cr(s)": {"potencial_estandar": -0.744, "carga": 0},  # Cr³⁺ → Cr(s)
+        "Cr2O7^2-": {"potencial_estandar": +1.33, "carga": -2},  # Cr₂O₇²⁻ → Cr³⁺
+
+        # Cobalto
+        "Co2+": {"potencial_estandar": -0.277, "carga": +2},
+        "Co3+": {"potencial_estandar": +1.808, "carga": +3},  # Co³⁺ → Co²⁺
+
+        # Cobre (¡TODAS las semirreacciones!)
+        "Cu2+": {"potencial_estandar": +0.337, "carga": +2},  # Cu²⁺ → Cu(s)
+        "Cu+": {"potencial_estandar": +0.153, "carga": +1},  # Cu²⁺ → Cu⁺
+        "Cu(s)": {"potencial_estandar": +0.521, "carga": 0},  # Cu⁺ → Cu(s)
+        "CuI(s)": {"potencial_estandar": +0.86, "carga": 0},  # Cu²⁺ + I⁻ → CuI(s)
+        "CuI(s)_2": {"potencial_estandar": -0.185, "carga": 0},  # CuI(s) → Cu(s) + I⁻
+
+        # Flúor
+        "F2": {"potencial_estandar": +3.06, "carga": 0},
+
+        # Hidrógeno
+        "H+": {"potencial_estandar": 0.000, "carga": +1},  # 2H⁺ → H₂
+
+        # Yodo
+        "I2(s)": {"potencial_estandar": +0.5355, "carga": 0},
+        "I2(ac)": {"potencial_estandar": +0.615, "carga": 0},
+        "I3-": {"potencial_estandar": +0.536, "carga": -1},
+        "IO3-": {"potencial_estandar": +1.196, "carga": -1},  # IO₃⁻ → I₂
+        "H3IO6": {"potencial_estandar": +1.601, "carga": 0},  # H₅IO₆ → IO₃⁻
+
+        # Hierro
+        "Fe2+": {"potencial_estandar": -0.440, "carga": +2},
+        "Fe3+": {"potencial_estandar": +0.771, "carga": +3},  # Fe³⁺ → Fe²⁺
+        "Fe(CN)6^3-": {"potencial_estandar": +0.36, "carga": -3},  # [Fe(CN)₆]³⁻ → [Fe(CN)₆]⁴⁻
+
+        # Plomo
+        "Pb2+": {"potencial_estandar": -0.126, "carga": +2},  # Pb²⁺ → Pb(s)
+        "PbO2": {"potencial_estandar": +1.455, "carga": 0},   # PbO₂ → Pb²⁺
+        "PbSO4": {"potencial_estandar": -0.350, "carga": 0},  # PbSO₄ → Pb(s)
+
+        # Litio
+        "Li+": {"potencial_estandar": -3.045, "carga": +1},   # Li⁺ → Li(s)
+
+        # Magnesio
+        "Mg2+": {"potencial_estandar": -2.363, "carga": +2},  # Mg²⁺ → Mg(s)
+
+        # Manganeso
+        "Mn2+": {"potencial_estandar": -1.180, "carga": +2},  # Mn²⁺ → Mn(s)
+        "MnO2": {"potencial_estandar": +1.23, "carga": 0},    # MnO₂ → Mn²⁺
+        "MnO4-": {"potencial_estandar": +1.51, "carga": -1},  # MnO₄⁻ → Mn²⁺
+        "MnO4-_2": {"potencial_estandar": +1.695, "carga": -1},  # MnO₄⁻ → MnO₂
+        "MnO4^2-": {"potencial_estandar": +0.564, "carga": -2},  # MnO₄⁻ → MnO₄²⁻
+
+        # Mercurio (¡todas las variantes!)
+        "Hg2^2+": {"potencial_estandar": +0.788, "carga": +2},  # Hg₂²⁺ → 2Hg(l)
+        "Hg2+": {"potencial_estandar": +0.920, "carga": +2},    # 2Hg²⁺ → Hg₂²⁺
+        "Hg2^2+_2": {"potencial_estandar": +0.854, "carga": +2}, # Hg₂²⁺ → Hg(l)
+        "Hg2Cl2": {"potencial_estandar": +0.268, "carga": 0},    # Hg₂Cl₂ → 2Hg(l)
+        "Hg2SO4": {"potencial_estandar": +0.615, "carga": 0},    # Hg₂SO₄ → 2Hg(l)
+
+        # Níquel
+        "Ni2+": {"potencial_estandar": -0.250, "carga": +2},  # Ni²⁺ → Ni(s)
+
+        # Nitrógeno
+        "N2": {"potencial_estandar": -0.23, "carga": 0},      # N₂ → N₂H₅⁺
+        "HNO2": {"potencial_estandar": +1.00, "carga": 0},    # HNO₂ → NO
+        "NO3-": {"potencial_estandar": +0.94, "carga": -1},   # NO₃⁻ → HNO₂
+
+        # Oxígeno
+        "H2O2": {"potencial_estandar": +1.776, "carga": 0},   # H₂O₂ → H₂O
+        "HO2-": {"potencial_estandar": +0.88, "carga": -1},   # HO₂⁻ → OH⁻
+        "O2": {"potencial_estandar": +1.229, "carga": 0},     # O₂ → H₂O
+        "O2_2": {"potencial_estandar": +0.682, "carga": 0},   # O₂ → H₂O₂
+        "O3": {"potencial_estandar": +2.07, "carga": 0},      # O₃ → O₂
+
+        # Paladio
+        "Pd2+": {"potencial_estandar": +0.987, "carga": +2},  # Pd²⁺ → Pd(s)
+
+        # Platino
+        "PtCl4^2-": {"potencial_estandar": +0.755, "carga": -2},  # PtCl₄²⁻ → Pt(s)
+        "PtCl6^2-": {"potencial_estandar": +0.68, "carga": -2},    # PtCl₆²⁻ → PtCl₄²⁻
+
+        # Potasio
+        "K+": {"potencial_estandar": -2.925, "carga": +1},    # K⁺ → K(s)
+
+        # Selenio
+        "H2SeO3": {"potencial_estandar": +0.740, "carga": 0},  # H₂SeO₃ → Se(s)
+        "SeO4^2-": {"potencial_estandar": +1.15, "carga": -2},  # SeO₄²⁻ → H₂SeO₃
+
+        # Plata (todas las semirreacciones)
+        "Ag+": {"potencial_estandar": +0.799, "carga": +1},   # Ag⁺ → Ag(s)
+        "AgBr": {"potencial_estandar": +0.073, "carga": 0},   # AgBr → Ag(s)
+        "AgCl": {"potencial_estandar": +0.222, "carga": 0},   # AgCl → Ag(s)
+        "Ag(CN)2-": {"potencial_estandar": -0.31, "carga": -1},  # Ag(CN)₂⁻ → Ag(s)
+        "Ag2CrO4": {"potencial_estandar": +0.446, "carga": 0}, # Ag₂CrO₄ → 2Ag(s)
+        "AgI": {"potencial_estandar": -0.151, "carga": 0},     # AgI → Ag(s)
+        "Ag(S2O3)2^3-": {"potencial_estandar": +0.017, "carga": -3},  # Ag(S₂O₃)₂³⁻ → Ag(s)
+
+        # Sodio
+        "Na+": {"potencial_estandar": -2.714, "carga": +1},   # Na⁺ → Na(s)
+
+        # Azufre
+        "S": {"potencial_estandar": +0.141, "carga": 0},      # S → H₂S
+        "H2SO3": {"potencial_estandar": +0.450, "carga": 0},  # H₂SO₃ → S(s)
+        "SO4^2-": {"potencial_estandar": +0.172, "carga": -2}, # SO₄²⁻ → H₂SO₃
+        "S4O6^2-": {"potencial_estandar": +0.08, "carga": -2}, # S₄O₆²⁻ → 2S₂O₃²⁻
+        "S2O8^2-": {"potencial_estandar": +2.01, "carga": -2}, # S₂O₈²⁻ → 2SO₄²⁻
+
+        # Talio
+        "Tl+": {"potencial_estandar": -0.336, "carga": +1},   # Tl⁺ → Tl(s)
+        "Tl3+": {"potencial_estandar": +1.25, "carga": +3},   # Tl³⁺ → Tl⁺
+
+        # Estaño
+        "Sn2+": {"potencial_estandar": -0.136, "carga": +2},  # Sn²⁺ → Sn(s)
+        "Sn4+": {"potencial_estandar": +0.154, "carga": +4},   # Sn⁴⁺ → Sn²⁺
+
+        # Titanio
+        "Ti3+": {"potencial_estandar": -0.369, "carga": +3},  # Ti³⁺ → Ti²⁺
+        "TiO^2+": {"potencial_estandar": +0.099, "carga": +2}, # TiO²⁺ → Ti³⁺
+
+        # Uranio
+        "UO2^2+": {"potencial_estandar": +0.334, "carga": +2}, # UO₂²⁺ → U⁴⁺
+
+        # Vanadio
+        "V3+": {"potencial_estandar": -0.255, "carga": +3},   # V³⁺ → V²⁺
+        "VO^2+": {"potencial_estandar": +0.337, "carga": +2},  # VO²⁺ → V³⁺
+        "V(OH)4+": {"potencial_estandar": +1.00, "carga": +1}, # V(OH)₄⁺ → VO²⁺
+
+        # Zinc
+        "Zn2+": {"potencial_estandar": -0.763, "carga": +2}   # Zn²⁺ → Zn(s)
+        }
