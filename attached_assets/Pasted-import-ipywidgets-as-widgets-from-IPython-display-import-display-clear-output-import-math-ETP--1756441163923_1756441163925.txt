@@ -1,0 +1,1579 @@
+import ipywidgets as widgets
+from IPython.display import display, clear_output
+import math
+
+
+ETP = {
+    "H" : 1.0079, "He": 4.0026,"Li": 6.941,"Be": 9.0122,"B": 10.811,"C": 12.0107,"N": 14.0067,"O": 15.9994,"F": 18.9984,"Ne": 20.1797,"Na": 22.9897,
+    "Mg": 24.305,"Al": 26.9815,"Si": 28.0855,"P": 30.9738,"S": 32.065,"Cl": 35.453,"K": 39.0983,"Ar": 39.948, "Ca": 40.078, "Sc": 44.9559, "Ti": 47.867,
+    "V": 50.9415, "Cr": 51.9961,"Mn": 54.938,"Fe": 55.845,"N": 58.6934,"Co": 58.9332,"Cu": 63.546,"Zn": 65.39,"Ga": 69.723,"Ge": 72.64,"As": 74.9216,
+    "Se": 78.96,"Br": 79.904,"Kr": 83.8, "Rb": 85.4678,"Sr": 87.62,"Y": 88.9059,"Zr": 91.224,"Nb": 92.9064,"Mo": 95.94,"Tc": 98,"Ru": 101.07,
+    "Rh": 102.9055,"Pd": 106.42,"Ag": 107.8682,"Cd": 112.411,"In": 114.818,"Sn": 118.71,"Sb": 121.76,"I": 126.9045,"Te": 127.6,"Xe": 131.293,
+    "Cs": 132.9055,"Ba": 137.327,"La": 138.9055,"Ce": 140.116,"Pr": 140.9077,"Nd": 144.24,"Pm": 145,"Sm": 150.36,"Eu": 151.964,"Gd": 157.25,
+    "Tb": 158.9253,"Dy": 162.5,"Ho": 164.9303,"Er": 167.259,"Tm": 168.9342,"Yb": 173.04,"Lu": 174.967,"Hf": 178.49,"Ta": 180.9479,"W": 183.84,
+    "Re": 186.207,"Os": 190.23,"Ir": 192.217,"Pt": 195.078,"Au": 196.9665,"Hg": 200.59,"Tl": 204.3833,"Pb": 207.2,"Bi": 208.9804,"Po": 209,"At": 210,
+    "Rn": 222,"Fr": 223,"Ra": 226,"Ac": 227,"Pa": 231.0359,"Th": 232.0381,"Np": 237,"U": 238.0289,"Am": 243,"Pu": 244,"Cm": 247,"Bk" :247,"Cf": 251,
+    "Es" :252,"Fm" :257,"Md" :258,"No": 259,"Rf" :261,"Lr" :262,"Db": 262,"Bh": 270.9292,"Sg" :270.4869,"Mt" :278.1309,"Hs" :275.3816,"Rg" :272,
+    "Cn": 277,"Fl": 298.187
+}
+
+compuestos = {
+        # Aluminio
+        "Al3+": {"potencial_estandar": -1.662, "carga": +3},
+
+        # Antimonio
+        "SbO+": {"potencial_estandar": +0.581, "carga": +1},  # Sb₂O₃ → 2SbO⁺
+
+        # Arsénico
+        "H2AsO4": {"potencial_estandar": +0.559, "carga": 0},  # H₃AsO₄ → H₃AsO₃
+
+        # Bario
+        "Ba2+": {"potencial_estandar": -2.906, "carga": +2},
+
+        # Bismuto
+        "BiO+": {"potencial_estandar": +0.320, "carga": +1},
+        "BiCl4-": {"potencial_estandar": +0.16, "carga": -1},
+
+        # Bromo
+        "Br2(l)": {"potencial_estandar": +1.065, "carga": 0},
+        "Br2(ac)": {"potencial_estandar": +1.087, "carga": 0},
+        "BrO3-": {"potencial_estandar": +1.52, "carga": -1},  # BrO₃⁻ → Br₂
+        "BrO3-_2": {"potencial_estandar": +1.44, "carga": -1},  # BrO₃⁻ → Br⁻
+
+        # Cadmio
+        "Cd2+": {"potencial_estandar": -0.403, "carga": +2},
+
+        # Calcio
+        "Ca2+": {"potencial_estandar": -2.866, "carga": +2},
+
+        # Carbono
+        "C6H4O2": {"potencial_estandar": +0.699, "carga": 0},  # Quinona → Hidroquinona
+        "CO2": {"potencial_estandar": -0.49, "carga": 0},  # CO₂ → H₂C₂O₄
+
+        # Cerio
+        "Ce4+": {"potencial_estandar": +1.70, "carga": +4},  # En HClO₄ 1 M
+
+        # Cloro
+        "Cl2": {"potencial_estandar": +1.359, "carga": 0},
+        "HClO": {"potencial_estandar": +1.63, "carga": 0},  # HClO → Cl₂
+        "ClO3-": {"potencial_estandar": +1.47, "carga": -1},  # ClO₃⁻ → Cl₂
+
+        # Cromo
+        "Cr3+": {"potencial_estandar": -0.408, "carga": +3},  # Cr³⁺ → Cr²⁺
+        "Cr(s)": {"potencial_estandar": -0.744, "carga": 0},  # Cr³⁺ → Cr(s)
+        "Cr2O7^2-": {"potencial_estandar": +1.33, "carga": -2},  # Cr₂O₇²⁻ → Cr³⁺
+
+        # Cobalto
+        "Co2+": {"potencial_estandar": -0.277, "carga": +2},
+        "Co3+": {"potencial_estandar": +1.808, "carga": +3},  # Co³⁺ → Co²⁺
+
+        # Cobre (¡TODAS las semirreacciones!)
+        "Cu2+": {"potencial_estandar": +0.337, "carga": +2},  # Cu²⁺ → Cu(s)
+        "Cu+": {"potencial_estandar": +0.153, "carga": +1},  # Cu²⁺ → Cu⁺
+        "Cu(s)": {"potencial_estandar": +0.521, "carga": 0},  # Cu⁺ → Cu(s)
+        "CuI(s)": {"potencial_estandar": +0.86, "carga": 0},  # Cu²⁺ + I⁻ → CuI(s)
+        "CuI(s)_2": {"potencial_estandar": -0.185, "carga": 0},  # CuI(s) → Cu(s) + I⁻
+
+        # Flúor
+        "F2": {"potencial_estandar": +3.06, "carga": 0},
+
+        # Hidrógeno
+        "H+": {"potencial_estandar": 0.000, "carga": +1},  # 2H⁺ → H₂
+
+        # Yodo
+        "I2(s)": {"potencial_estandar": +0.5355, "carga": 0},
+        "I2(ac)": {"potencial_estandar": +0.615, "carga": 0},
+        "I3-": {"potencial_estandar": +0.536, "carga": -1},
+        "IO3-": {"potencial_estandar": +1.196, "carga": -1},  # IO₃⁻ → I₂
+        "H3IO6": {"potencial_estandar": +1.601, "carga": 0},  # H₅IO₆ → IO₃⁻
+
+        # Hierro
+        "Fe2+": {"potencial_estandar": -0.440, "carga": +2},
+        "Fe3+": {"potencial_estandar": +0.771, "carga": +3},  # Fe³⁺ → Fe²⁺
+        "Fe(CN)6^3-": {"potencial_estandar": +0.36, "carga": -3},  # [Fe(CN)₆]³⁻ → [Fe(CN)₆]⁴⁻
+
+        # Plomo
+        "Pb2+": {"potencial_estandar": -0.126, "carga": +2},  # Pb²⁺ → Pb(s)
+        "PbO2": {"potencial_estandar": +1.455, "carga": 0},   # PbO₂ → Pb²⁺
+        "PbSO4": {"potencial_estandar": -0.350, "carga": 0},  # PbSO₄ → Pb(s)
+
+        # Litio
+        "Li+": {"potencial_estandar": -3.045, "carga": +1},   # Li⁺ → Li(s)
+
+        # Magnesio
+        "Mg2+": {"potencial_estandar": -2.363, "carga": +2},  # Mg²⁺ → Mg(s)
+
+        # Manganeso
+        "Mn2+": {"potencial_estandar": -1.180, "carga": +2},  # Mn²⁺ → Mn(s)
+        "MnO2": {"potencial_estandar": +1.23, "carga": 0},    # MnO₂ → Mn²⁺
+        "MnO4-": {"potencial_estandar": +1.51, "carga": -1},  # MnO₄⁻ → Mn²⁺
+        "MnO4-_2": {"potencial_estandar": +1.695, "carga": -1},  # MnO₄⁻ → MnO₂
+        "MnO4^2-": {"potencial_estandar": +0.564, "carga": -2},  # MnO₄⁻ → MnO₄²⁻
+
+        # Mercurio (¡todas las variantes!)
+        "Hg2^2+": {"potencial_estandar": +0.788, "carga": +2},  # Hg₂²⁺ → 2Hg(l)
+        "Hg2+": {"potencial_estandar": +0.920, "carga": +2},    # 2Hg²⁺ → Hg₂²⁺
+        "Hg2^2+_2": {"potencial_estandar": +0.854, "carga": +2}, # Hg₂²⁺ → Hg(l)
+        "Hg2Cl2": {"potencial_estandar": +0.268, "carga": 0},    # Hg₂Cl₂ → 2Hg(l)
+        "Hg2SO4": {"potencial_estandar": +0.615, "carga": 0},    # Hg₂SO₄ → 2Hg(l)
+
+        # Níquel
+        "Ni2+": {"potencial_estandar": -0.250, "carga": +2},  # Ni²⁺ → Ni(s)
+
+        # Nitrógeno
+        "N2": {"potencial_estandar": -0.23, "carga": 0},      # N₂ → N₂H₅⁺
+        "HNO2": {"potencial_estandar": +1.00, "carga": 0},    # HNO₂ → NO
+        "NO3-": {"potencial_estandar": +0.94, "carga": -1},   # NO₃⁻ → HNO₂
+
+        # Oxígeno
+        "H2O2": {"potencial_estandar": +1.776, "carga": 0},   # H₂O₂ → H₂O
+        "HO2-": {"potencial_estandar": +0.88, "carga": -1},   # HO₂⁻ → OH⁻
+        "O2": {"potencial_estandar": +1.229, "carga": 0},     # O₂ → H₂O
+        "O2_2": {"potencial_estandar": +0.682, "carga": 0},   # O₂ → H₂O₂
+        "O3": {"potencial_estandar": +2.07, "carga": 0},      # O₃ → O₂
+
+        # Paladio
+        "Pd2+": {"potencial_estandar": +0.987, "carga": +2},  # Pd²⁺ → Pd(s)
+
+        # Platino
+        "PtCl4^2-": {"potencial_estandar": +0.755, "carga": -2},  # PtCl₄²⁻ → Pt(s)
+        "PtCl6^2-": {"potencial_estandar": +0.68, "carga": -2},    # PtCl₆²⁻ → PtCl₄²⁻
+
+        # Potasio
+        "K+": {"potencial_estandar": -2.925, "carga": +1},    # K⁺ → K(s)
+
+        # Selenio
+        "H2SeO3": {"potencial_estandar": +0.740, "carga": 0},  # H₂SeO₃ → Se(s)
+        "SeO4^2-": {"potencial_estandar": +1.15, "carga": -2},  # SeO₄²⁻ → H₂SeO₃
+
+        # Plata (todas las semirreacciones)
+        "Ag+": {"potencial_estandar": +0.799, "carga": +1},   # Ag⁺ → Ag(s)
+        "AgBr": {"potencial_estandar": +0.073, "carga": 0},   # AgBr → Ag(s)
+        "AgCl": {"potencial_estandar": +0.222, "carga": 0},   # AgCl → Ag(s)
+        "Ag(CN)2-": {"potencial_estandar": -0.31, "carga": -1},  # Ag(CN)₂⁻ → Ag(s)
+        "Ag2CrO4": {"potencial_estandar": +0.446, "carga": 0}, # Ag₂CrO₄ → 2Ag(s)
+        "AgI": {"potencial_estandar": -0.151, "carga": 0},     # AgI → Ag(s)
+        "Ag(S2O3)2^3-": {"potencial_estandar": +0.017, "carga": -3},  # Ag(S₂O₃)₂³⁻ → Ag(s)
+
+        # Sodio
+        "Na+": {"potencial_estandar": -2.714, "carga": +1},   # Na⁺ → Na(s)
+
+        # Azufre
+        "S": {"potencial_estandar": +0.141, "carga": 0},      # S → H₂S
+        "H2SO3": {"potencial_estandar": +0.450, "carga": 0},  # H₂SO₃ → S(s)
+        "SO4^2-": {"potencial_estandar": +0.172, "carga": -2}, # SO₄²⁻ → H₂SO₃
+        "S4O6^2-": {"potencial_estandar": +0.08, "carga": -2}, # S₄O₆²⁻ → 2S₂O₃²⁻
+        "S2O8^2-": {"potencial_estandar": +2.01, "carga": -2}, # S₂O₈²⁻ → 2SO₄²⁻
+
+        # Talio
+        "Tl+": {"potencial_estandar": -0.336, "carga": +1},   # Tl⁺ → Tl(s)
+        "Tl3+": {"potencial_estandar": +1.25, "carga": +3},   # Tl³⁺ → Tl⁺
+
+        # Estaño
+        "Sn2+": {"potencial_estandar": -0.136, "carga": +2},  # Sn²⁺ → Sn(s)
+        "Sn4+": {"potencial_estandar": +0.154, "carga": +4},   # Sn⁴⁺ → Sn²⁺
+
+        # Titanio
+        "Ti3+": {"potencial_estandar": -0.369, "carga": +3},  # Ti³⁺ → Ti²⁺
+        "TiO^2+": {"potencial_estandar": +0.099, "carga": +2}, # TiO²⁺ → Ti³⁺
+
+        # Uranio
+        "UO2^2+": {"potencial_estandar": +0.334, "carga": +2}, # UO₂²⁺ → U⁴⁺
+
+        # Vanadio
+        "V3+": {"potencial_estandar": -0.255, "carga": +3},   # V³⁺ → V²⁺
+        "VO^2+": {"potencial_estandar": +0.337, "carga": +2},  # VO²⁺ → V³⁺
+        "V(OH)4+": {"potencial_estandar": +1.00, "carga": +1}, # V(OH)₄⁺ → VO²⁺
+
+        # Zinc
+        "Zn2+": {"potencial_estandar": -0.763, "carga": +2},   # Zn²⁺ → Zn(s)
+        # Aluminio
+        "Al3+": {"potencial_estandar": -1.662, "carga": +3},
+
+        # Antimonio
+        "SbO+": {"potencial_estandar": +0.581, "carga": +1},  # Sb₂O₃ → 2SbO⁺
+
+        # Arsénico
+        "H2AsO4": {"potencial_estandar": +0.559, "carga": 0},  # H₃AsO₄ → H₃AsO₃
+
+        # Bario
+        "Ba2+": {"potencial_estandar": -2.906, "carga": +2},
+
+        # Bismuto
+        "BiO+": {"potencial_estandar": +0.320, "carga": +1},
+        "BiCl4-": {"potencial_estandar": +0.16, "carga": -1},
+
+        # Bromo
+        "Br2(l)": {"potencial_estandar": +1.065, "carga": 0},
+        "Br2(ac)": {"potencial_estandar": +1.087, "carga": 0},
+        "BrO3-": {"potencial_estandar": +1.52, "carga": -1},  # BrO₃⁻ → Br₂
+        "BrO3-_2": {"potencial_estandar": +1.44, "carga": -1},  # BrO₃⁻ → Br⁻
+
+        # Cadmio
+        "Cd2+": {"potencial_estandar": -0.403, "carga": +2},
+
+        # Calcio
+        "Ca2+": {"potencial_estandar": -2.866, "carga": +2},
+
+        # Carbono
+        "C6H4O2": {"potencial_estandar": +0.699, "carga": 0},  # Quinona → Hidroquinona
+        "CO2": {"potencial_estandar": -0.49, "carga": 0},  # CO₂ → H₂C₂O₄
+
+        # Cerio
+        "Ce4+": {"potencial_estandar": +1.70, "carga": +4},  # En HClO₄ 1 M
+
+        # Cloro
+        "Cl2": {"potencial_estandar": +1.359, "carga": 0},
+        "HClO": {"potencial_estandar": +1.63, "carga": 0},  # HClO → Cl₂
+        "ClO3-": {"potencial_estandar": +1.47, "carga": -1},  # ClO₃⁻ → Cl₂
+
+        # Cromo
+        "Cr3+": {"potencial_estandar": -0.408, "carga": +3},  # Cr³⁺ → Cr²⁺
+        "Cr(s)": {"potencial_estandar": -0.744, "carga": 0},  # Cr³⁺ → Cr(s)
+        "Cr2O7^2-": {"potencial_estandar": +1.33, "carga": -2},  # Cr₂O₇²⁻ → Cr³⁺
+
+        # Cobalto
+        "Co2+": {"potencial_estandar": -0.277, "carga": +2},
+        "Co3+": {"potencial_estandar": +1.808, "carga": +3},  # Co³⁺ → Co²⁺
+
+        # Cobre (¡TODAS las semirreacciones!)
+        "Cu2+": {"potencial_estandar": +0.337, "carga": +2},  # Cu²⁺ → Cu(s)
+        "Cu+": {"potencial_estandar": +0.153, "carga": +1},  # Cu²⁺ → Cu⁺
+        "Cu(s)": {"potencial_estandar": +0.521, "carga": 0},  # Cu⁺ → Cu(s)
+        "CuI(s)": {"potencial_estandar": +0.86, "carga": 0},  # Cu²⁺ + I⁻ → CuI(s)
+        "CuI(s)_2": {"potencial_estandar": -0.185, "carga": 0},  # CuI(s) → Cu(s) + I⁻
+
+        # Flúor
+        "F2": {"potencial_estandar": +3.06, "carga": 0},
+
+        # Hidrógeno
+        "H+": {"potencial_estandar": 0.000, "carga": +1},  # 2H⁺ → H₂
+
+        # Yodo
+        "I2(s)": {"potencial_estandar": +0.5355, "carga": 0},
+        "I2(ac)": {"potencial_estandar": +0.615, "carga": 0},
+        "I3-": {"potencial_estandar": +0.536, "carga": -1},
+        "IO3-": {"potencial_estandar": +1.196, "carga": -1},  # IO₃⁻ → I₂
+        "H3IO6": {"potencial_estandar": +1.601, "carga": 0},  # H₅IO₆ → IO₃⁻
+
+        # Hierro
+        "Fe2+": {"potencial_estandar": -0.440, "carga": +2},
+        "Fe3+": {"potencial_estandar": +0.771, "carga": +3},  # Fe³⁺ → Fe²⁺
+        "Fe(CN)6^3-": {"potencial_estandar": +0.36, "carga": -3},  # [Fe(CN)₆]³⁻ → [Fe(CN)₆]⁴⁻
+
+        # Plomo
+        "Pb2+": {"potencial_estandar": -0.126, "carga": +2},  # Pb²⁺ → Pb(s)
+        "PbO2": {"potencial_estandar": +1.455, "carga": 0},   # PbO₂ → Pb²⁺
+        "PbSO4": {"potencial_estandar": -0.350, "carga": 0},  # PbSO₄ → Pb(s)
+
+        # Litio
+        "Li+": {"potencial_estandar": -3.045, "carga": +1},   # Li⁺ → Li(s)
+
+        # Magnesio
+        "Mg2+": {"potencial_estandar": -2.363, "carga": +2},  # Mg²⁺ → Mg(s)
+
+        # Manganeso
+        "Mn2+": {"potencial_estandar": -1.180, "carga": +2},  # Mn²⁺ → Mn(s)
+        "MnO2": {"potencial_estandar": +1.23, "carga": 0},    # MnO₂ → Mn²⁺
+        "MnO4-": {"potencial_estandar": +1.51, "carga": -1},  # MnO₄⁻ → Mn²⁺
+        "MnO4-_2": {"potencial_estandar": +1.695, "carga": -1},  # MnO₄⁻ → MnO₂
+        "MnO4^2-": {"potencial_estandar": +0.564, "carga": -2},  # MnO₄⁻ → MnO₄²⁻
+
+        # Mercurio (¡todas las variantes!)
+        "Hg2^2+": {"potencial_estandar": +0.788, "carga": +2},  # Hg₂²⁺ → 2Hg(l)
+        "Hg2+": {"potencial_estandar": +0.920, "carga": +2},    # 2Hg²⁺ → Hg₂²⁺
+        "Hg2^2+_2": {"potencial_estandar": +0.854, "carga": +2}, # Hg₂²⁺ → Hg(l)
+        "Hg2Cl2": {"potencial_estandar": +0.268, "carga": 0},    # Hg₂Cl₂ → 2Hg(l)
+        "Hg2SO4": {"potencial_estandar": +0.615, "carga": 0},    # Hg₂SO₄ → 2Hg(l)
+
+        # Níquel
+        "Ni2+": {"potencial_estandar": -0.250, "carga": +2},  # Ni²⁺ → Ni(s)
+
+        # Nitrógeno
+        "N2": {"potencial_estandar": -0.23, "carga": 0},      # N₂ → N₂H₅⁺
+        "HNO2": {"potencial_estandar": +1.00, "carga": 0},    # HNO₂ → NO
+        "NO3-": {"potencial_estandar": +0.94, "carga": -1},   # NO₃⁻ → HNO₂
+
+        # Oxígeno
+        "H2O2": {"potencial_estandar": +1.776, "carga": 0},   # H₂O₂ → H₂O
+        "HO2-": {"potencial_estandar": +0.88, "carga": -1},   # HO₂⁻ → OH⁻
+        "O2": {"potencial_estandar": +1.229, "carga": 0},     # O₂ → H₂O
+        "O2_2": {"potencial_estandar": +0.682, "carga": 0},   # O₂ → H₂O₂
+        "O3": {"potencial_estandar": +2.07, "carga": 0},      # O₃ → O₂
+
+        # Paladio
+        "Pd2+": {"potencial_estandar": +0.987, "carga": +2},  # Pd²⁺ → Pd(s)
+
+        # Platino
+        "PtCl4^2-": {"potencial_estandar": +0.755, "carga": -2},  # PtCl₄²⁻ → Pt(s)
+        "PtCl6^2-": {"potencial_estandar": +0.68, "carga": -2},    # PtCl₆²⁻ → PtCl₄²⁻
+
+        # Potasio
+        "K+": {"potencial_estandar": -2.925, "carga": +1},    # K⁺ → K(s)
+
+        # Selenio
+        "H2SeO3": {"potencial_estandar": +0.740, "carga": 0},  # H₂SeO₃ → Se(s)
+        "SeO4^2-": {"potencial_estandar": +1.15, "carga": -2},  # SeO₄²⁻ → H₂SeO₃
+
+        # Plata (todas las semirreacciones)
+        "Ag+": {"potencial_estandar": +0.799, "carga": +1},   # Ag⁺ → Ag(s)
+        "AgBr": {"potencial_estandar": +0.073, "carga": 0},   # AgBr → Ag(s)
+        "AgCl": {"potencial_estandar": +0.222, "carga": 0},   # AgCl → Ag(s)
+        "Ag(CN)2-": {"potencial_estandar": -0.31, "carga": -1},  # Ag(CN)₂⁻ → Ag(s)
+        "Ag2CrO4": {"potencial_estandar": +0.446, "carga": 0}, # Ag₂CrO₄ → 2Ag(s)
+        "AgI": {"potencial_estandar": -0.151, "carga": 0},     # AgI → Ag(s)
+        "Ag(S2O3)2^3-": {"potencial_estandar": +0.017, "carga": -3},  # Ag(S₂O₃)₂³⁻ → Ag(s)
+
+        # Sodio
+        "Na+": {"potencial_estandar": -2.714, "carga": +1},   # Na⁺ → Na(s)
+
+        # Azufre
+        "S": {"potencial_estandar": +0.141, "carga": 0},      # S → H₂S
+        "H2SO3": {"potencial_estandar": +0.450, "carga": 0},  # H₂SO₃ → S(s)
+        "SO4^2-": {"potencial_estandar": +0.172, "carga": -2}, # SO₄²⁻ → H₂SO₃
+        "S4O6^2-": {"potencial_estandar": +0.08, "carga": -2}, # S₄O₆²⁻ → 2S₂O₃²⁻
+        "S2O8^2-": {"potencial_estandar": +2.01, "carga": -2}, # S₂O₈²⁻ → 2SO₄²⁻
+
+        # Talio
+        "Tl+": {"potencial_estandar": -0.336, "carga": +1},   # Tl⁺ → Tl(s)
+        "Tl3+": {"potencial_estandar": +1.25, "carga": +3},   # Tl³⁺ → Tl⁺
+
+        # Estaño
+        "Sn2+": {"potencial_estandar": -0.136, "carga": +2},  # Sn²⁺ → Sn(s)
+        "Sn4+": {"potencial_estandar": +0.154, "carga": +4},   # Sn⁴⁺ → Sn²⁺
+
+        # Titanio
+        "Ti3+": {"potencial_estandar": -0.369, "carga": +3},  # Ti³⁺ → Ti²⁺
+        "TiO^2+": {"potencial_estandar": +0.099, "carga": +2}, # TiO²⁺ → Ti³⁺
+
+        # Uranio
+        "UO2^2+": {"potencial_estandar": +0.334, "carga": +2}, # UO₂²⁺ → U⁴⁺
+
+        # Vanadio
+        "V3+": {"potencial_estandar": -0.255, "carga": +3},   # V³⁺ → V²⁺
+        "VO^2+": {"potencial_estandar": +0.337, "carga": +2},  # VO²⁺ → V³⁺
+        "V(OH)4+": {"potencial_estandar": +1.00, "carga": +1}, # V(OH)₄⁺ → VO²⁺
+
+        # Zinc
+        "Zn2+": {"potencial_estandar": -0.763, "carga": +2}   # Zn²⁺ → Zn(s)
+        }
+
+
+
+def main_interface():
+    clear_output()
+
+    # botones principales
+    boton_normalidad = widgets.Button(description="Normalidad")
+    boton_pmeq = widgets.Button(description="pmeq")
+    boton_mg = widgets.Button(description="mg")
+    boton_porcentaje = widgets.Button(description="Porcentaje")
+    boton_potencial = widgets.Button(description="Potencial")
+    boton_peso_molecular = widgets.Button(description="Peso molecular")
+    boton_salir = widgets.Button(description="Salir", button_style='danger')
+
+    buttons_box = widgets.HBox([boton_normalidad, boton_pmeq, boton_mg,
+                              boton_porcentaje, boton_potencial,
+                              boton_peso_molecular, boton_salir])
+
+    output = widgets.Output()
+
+
+    def volver_al_menu(b=None):
+        with output:
+            clear_output()
+            display(buttons_box)
+
+    # funciones de los botones
+    def asignar_funciones():
+        boton_normalidad.on_click(lambda b: calcular_normalidad(output, volver_al_menu))
+        boton_pmeq.on_click(lambda b: calcular_pmeq(output, volver_al_menu))
+        boton_mg.on_click(lambda b: calcular_mg(output, volver_al_menu))
+        boton_porcentaje.on_click(lambda b: calcular_porcentaje_analito(output, volver_al_menu))
+        boton_potencial.on_click(lambda b: calcular_potencial_electrico(output, volver_al_menu))
+        boton_peso_molecular.on_click(lambda b: peso_molecular(output, volver_al_menu))
+        boton_salir.on_click(lambda b: get_ipython().kernel.do_shutdown(True))
+
+
+
+#Peso miliequivalente
+
+    def calcular_pmeq(output, volver_al_menu):
+        with output:
+            clear_output()
+
+            # Widgets principales
+            peso_molecular_input = widgets.FloatText(
+                description="Peso molecular (g/mol):",
+                style={'description_width': '180px'},
+                layout=widgets.Layout(width='320px')
+            )
+
+            num_electrones_input = widgets.IntText(
+                description="N° de electrones:",
+                min=1,
+                value=1,
+                style={'description_width': '180px'},
+                layout=widgets.Layout(width='320px')
+            )
+
+            calcular_btn = widgets.Button(
+                description="⚖️ Calcular pmeq",
+                button_style='success',
+                layout=widgets.Layout(width='180px')
+            )
+
+            limpiar_btn = widgets.Button(
+                description="♻ Limpiar",
+                button_style='warning',
+                layout=widgets.Layout(width='120px')
+            )
+
+            volver_btn = widgets.Button(
+                description="🏠 Menú",
+                button_style='info',
+                layout=widgets.Layout(width='120px')
+            )
+
+            result_output = widgets.Output(
+                layout=widgets.Layout(
+                    border='1px solid #eee',
+                    padding='15px',
+                    margin='15px 0',
+                    width='100%'
+                )
+            )
+
+            def calcular(b):
+                with result_output:
+                    result_output.clear_output()
+
+                    try:
+                        if peso_molecular_input.value is None or peso_molecular_input.value <= 0:
+                            display(widgets.HTML("<div style='color: red; padding: 10px; border-radius: 5px; background: #fff2f0;'>❌ El peso molecular debe ser un valor positivo</div>"))
+                            return
+
+                        if num_electrones_input.value < 1:
+                            display(widgets.HTML("<div style='color: red; padding: 10px; border-radius: 5px; background: #fff2f0;'>❌ El número de electrones debe ser ≥ 1</div>"))
+                            return
+
+                        pmeq = peso_molecular_input.value / (num_electrones_input.value * 1000)
+
+                        display(widgets.HTML(f"""
+                        <div style="background: #f8f9fa; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <div style="background: #1f77b4; color: white; padding: 12px 15px; font-size: 1.1em;">
+                                🧪 Resultado del cálculo
+                            </div>
+
+                            <div style="padding: 20px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                    <div style="font-size: 1.2em; margin-right: 10px;">pmeq =</div>
+                                    <div style="font-size: 1.8em; color: #fa8c16; font-weight: bold;">
+                                        {pmeq:.6f} g/meq
+                                    </div>
+                                </div>
+
+                                <div style="background: #e6f7ff; border-radius: 6px; padding: 15px; margin-bottom: 15px;">
+                                    <h4 style="margin: 0 0 10px 0; color: #1890ff;">📝 Parámetros utilizados</h4>
+                                    <ul style="margin: 0; padding-left: 20px;">
+                                        <li>Peso molecular: {peso_molecular_input.value} g/mol</li>
+                                        <li>N° de electrones: {num_electrones_input.value}</li>
+                                    </ul>
+                                </div>
+
+                                <div style="background: #fff7e6; border-radius: 6px; padding: 15px;">
+                                    <h4 style="margin: 0 0 10px 0; color: #d46b08;">🧮 Fórmula aplicada</h4>
+                                    <div style="font-family: monospace; background: #fafafa; padding: 10px; border-radius: 4px;">
+                                        pmeq = Peso Molecular / (N° electrones × 1000)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        """))
+
+                    except Exception as e:
+                        display(widgets.HTML(f"""
+                        <div style="color: red; padding: 15px; background: #fff2f0; border-radius: 6px; border: 1px solid #ffccc7;">
+                            ❌ Error en el cálculo: {str(e)}
+                        </div>
+                        """))
+
+            def limpiar(b):
+                peso_molecular_input.value = None
+                num_electrones_input.value = 1
+                with result_output:
+                    result_output.clear_output()
+
+            calcular_btn.on_click(calcular)
+            limpiar_btn.on_click(limpiar)
+            volver_btn.on_click(volver_al_menu)
+
+            display(widgets.VBox([
+                widgets.HTML("""
+                <div style="background: #1f77b4; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h2 style="margin: 0; display: flex; align-items: center;">
+                        <span style="margin-right: 10px;">⚖️</span>
+                        <span>Calculadora de pmeq</span>
+                    </h2>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9;">Calcule el peso miliequivalente de un compuesto</p>
+                </div>
+                """),
+
+                widgets.VBox([
+                    peso_molecular_input,
+                    num_electrones_input,
+
+                    widgets.HBox([
+                        calcular_btn,
+                        limpiar_btn,
+                        volver_btn
+                    ], layout=widgets.Layout(
+                        margin='20px 0 0 0',
+                        justify_content='space-between'
+                    ))
+                ]),
+
+                result_output
+            ]))
+
+
+
+# Normalidad
+    def calcular_normalidad(output, volver_al_menu):
+        with output:
+            clear_output()
+
+            masa_soluto_input = widgets.FloatText(
+                description="Masa soluto (g):",
+                style={'description_width': '150px'},
+                layout=widgets.Layout(width='300px')
+            )
+
+            pmeq_input = widgets.FloatText(
+                description="pmeq soluto:",
+                style={'description_width': '150px'},
+                layout=widgets.Layout(width='300px')
+            )
+
+            volumen_input = widgets.FloatText(
+                description="Volumen solución (ml):",
+                style={'description_width': '150px'},
+                layout=widgets.Layout(width='300px')
+            )
+
+            calcular_btn = widgets.Button(
+                description="🧪 Calcular Normalidad",
+                button_style='success',
+                layout=widgets.Layout(width='200px')
+            )
+
+            limpiar_btn = widgets.Button(
+                description="♻ Limpiar",
+                button_style='warning',
+                layout=widgets.Layout(width='120px')
+            )
+
+            volver_btn = widgets.Button(
+                description="🏠 Menú",
+                button_style='info',
+                layout=widgets.Layout(width='120px')
+            )
+
+            result_output = widgets.Output(
+                layout=widgets.Layout(
+                    border='1px solid #eee',
+                    padding='10px',
+                    margin='10px 0'
+                )
+            )
+
+            def calcular_N(b):
+                with result_output:
+                    result_output.clear_output()
+
+                    try:
+                        if None in [masa_soluto_input.value, pmeq_input.value, volumen_input.value]:
+                            display(widgets.HTML("<div style='color: red;'>❌ Error: Complete todos los campos</div>"))
+                            return
+
+                        if volumen_input.value == 0:
+                            display(widgets.HTML("<div style='color: red;'>❌ Error: El volumen no puede ser cero</div>"))
+                            return
+
+                        if pmeq_input.value == 0:
+                            display(widgets.HTML("<div style='color: red;'>❌ Error: El pmeq no puede ser cero</div>"))
+                            return
+
+                        N = masa_soluto_input.value / (pmeq_input.value * volumen_input.value)
+
+                        display(widgets.HTML(f"""
+                        <div style='background: #f8f9fa; padding: 15px; border-radius: 5px;'>
+                            <h3 style='color: #1f77b4; margin-top: 0;'>🧪 Resultado del Cálculo</h3>
+
+                            <div style='background: #f6ffed; padding: 10px; border-radius: 5px; margin-bottom: 10px;'>
+                                <p style='font-size: 1.2em;'>
+                                    <strong>Normalidad calculada:</strong>
+                                    <span style='color: #fa8c16; font-weight: bold;'>{N:.4f} N</span>
+                                </p>
+                            </div>
+
+                            <div style='background: #e6f7ff; padding: 10px; border-radius: 5px; margin-bottom: 10px;'>
+                                <h4 style='margin: 0 0 10px 0; color: #1890ff;'>Parámetros Utilizados</h4>
+                                <ul style='margin: 0; padding-left: 20px;'>
+                                    <li>Masa de soluto: {masa_soluto_input.value} g</li>
+                                    <li>pmeq del soluto: {pmeq_input.value}</li>
+                                    <li>Volumen de solución: {volumen_input.value} ml</li>
+                                </ul>
+                            </div>
+
+                            <div style='background: #fff7e6; padding: 10px; border-radius: 5px;'>
+                                <h4 style='margin: 0 0 10px 0; color: #d46b08;'>Fórmula Aplicada</h4>
+                                <p style='margin: 0; font-family: monospace;'>
+                                    N = masa soluto / (pmeq × volumen)
+                                </p>
+                            </div>
+                        </div>
+                        """))
+
+                    except Exception as e:
+                        display(widgets.HTML(f"<div style='color: red;'>❌ Error en cálculo: {str(e)}</div>"))
+
+            def limpiar_formulario(b):
+                masa_soluto_input.value = None
+                pmeq_input.value = None
+                volumen_input.value = None
+                with result_output:
+                    result_output.clear_output()
+
+            calcular_btn.on_click(calcular_N)
+            limpiar_btn.on_click(limpiar_formulario)
+            volver_btn.on_click(volver_al_menu)
+
+            display(widgets.VBox([
+                widgets.HTML("""
+                <div style='background: #1f77b4; color: white; padding: 10px; border-radius: 5px;'>
+                    <h2 style='margin: 0;'>🧪 Calculadora de Normalidad</h2>
+                    <p style='margin: 5px 0 0 0;'>Complete los parámetros requeridos para el cálculo</p>
+                </div>
+                """),
+
+                widgets.VBox([
+                    widgets.HTML("<h4 style='margin: 15px 0 5px 0;'>📊 Parámetros Requeridos:</h4>"),
+                    masa_soluto_input,
+                    pmeq_input,
+                    volumen_input,
+
+                    widgets.HBox([calcular_btn, limpiar_btn, volver_btn],
+                              layout=widgets.Layout(margin='15px 0 0 0'))
+                ]),
+
+                result_output
+            ]))
+
+
+
+# Miligramos
+    def calcular_mg(output, volver_al_menu):
+        with output:
+            clear_output()
+
+            # Variables para el cálculo
+            parametros = {
+                'N_titulante': None,
+                'ml_titulante': None,
+                'pmeq_muestra': None,
+                'aforo': None,
+                'alicuota': None,
+                'formula': 'sin_aforo'
+            }
+
+            # Widgets principales
+            N_titulante_input = widgets.FloatText(
+                description="Normalidad titulante (N):",
+                style={'description_width': '200px'},
+                layout=widgets.Layout(width='300px')
+            )
+
+            ml_titulante_input = widgets.FloatText(
+                description="ml gastados de titulante:",
+                style={'description_width': '200px'},
+                layout=widgets.Layout(width='300px')
+            )
+
+            pmeq_muestra_input = widgets.FloatText(
+                description="pmeq de la muestra:",
+                style={'description_width': '200px'},
+                layout=widgets.Layout(width='300px')
+            )
+
+            formula_dropdown = widgets.Dropdown(
+                options=[
+                    ('Sin aforo/alícuota', 'sin_aforo'),
+                    ('Con aforo/alícuota', 'con_aforo')
+                ],
+                description='Tipo de cálculo:',
+                style={'description_width': '200px'},
+                layout=widgets.Layout(width='300px')
+            )
+
+            aforo_input = widgets.FloatText(
+                description="Aforo (ml):",
+                style={'description_width': '200px'},
+                layout=widgets.Layout(width='300px'),
+                disabled=True
+            )
+
+            alicuota_input = widgets.FloatText(
+                description="Alícuota (ml):",
+                style={'description_width': '200px'},
+                layout=widgets.Layout(width='300px'),
+                disabled=True
+            )
+
+            calcular_btn = widgets.Button(
+                description="⚖️ Calcular mg",
+                button_style='success',
+                layout=widgets.Layout(width='150px')
+            )
+
+            limpiar_btn = widgets.Button(
+                description="♻ Limpiar",
+                button_style='warning',
+                layout=widgets.Layout(width='120px')
+            )
+
+            volver_btn = widgets.Button(
+                description="🏠 Menú",
+                button_style='info',
+                layout=widgets.Layout(width='120px')
+            )
+
+            # Output para resultados
+            result_output = widgets.Output(
+                layout=widgets.Layout(
+                    border='1px solid #eee',
+                    padding='10px',
+                    margin='10px 0'
+                )
+            )
+
+            # Función para habilitar/deshabilitar aforo y alícuota
+            def toggle_aforo(change):
+                aforo_input.disabled = change['new'] == 'sin_aforo'
+                alicuota_input.disabled = change['new'] == 'sin_aforo'
+                parametros['formula'] = change['new']
+
+            formula_dropdown.observe(toggle_aforo, names='value')
+
+            # Función para calcular los miligramos
+            def calcular_miligramos(b):
+                with result_output:
+                    result_output.clear_output()
+
+                    try:
+                        # Validar datos
+                        if None in [N_titulante_input.value, ml_titulante_input.value, pmeq_muestra_input.value]:
+                            display(widgets.HTML("<div style='color: red;'>❌ Error: Complete todos los campos requeridos</div>"))
+                            return
+
+                        if parametros['formula'] == 'con_aforo' and (aforo_input.value is None or alicuota_input.value is None):
+                            display(widgets.HTML("<div style='color: red;'>❌ Error: Ingrese valores para aforo y alícuota</div>"))
+                            return
+
+                        # Realizar cálculo
+                        if parametros['formula'] == 'sin_aforo':
+                            mg = N_titulante_input.value * ml_titulante_input.value * pmeq_muestra_input.value * 1000
+                        else:
+                            if alicuota_input.value == 0:
+                                display(widgets.HTML("<div style='color: red;'>❌ Error: La alícuota no puede ser cero</div>"))
+                                return
+                            mg = (N_titulante_input.value * ml_titulante_input.value *
+                                pmeq_muestra_input.value * (aforo_input.value / alicuota_input.value) * 1000)
+
+                        # Mostrar resultados con formato profesional
+                        display(widgets.HTML(f"""
+                        <div style='background: #f8f9fa; padding: 15px; border-radius: 5px;'>
+                            <h3 style='color: #1f77b4; margin-top: 0;'>⚖️ Resultado del Cálculo</h3>
+
+                            <div style='background: #f6ffed; padding: 10px; border-radius: 5px; margin-bottom: 10px;'>
+                                <p style='font-size: 1.2em;'>
+                                    <strong>Miligramos calculados:</strong>
+                                    <span style='color: #fa8c16; font-weight: bold;'>{mg:.4f} mg</span>
+                                </p>
+                            </div>
+
+                            <div style='background: #e6f7ff; padding: 10px; border-radius: 5px; margin-bottom: 10px;'>
+                                <h4 style='margin: 0 0 10px 0; color: #1890ff;'>Parámetros Utilizados</h4>
+                                <ul style='margin: 0; padding-left: 20px;'>
+                                    <li>Normalidad titulante: {N_titulante_input.value} N</li>
+                                    <li>ml gastados de titulante: {ml_titulante_input.value} ml</li>
+                                    <li>pmeq de la muestra: {pmeq_muestra_input.value}</li>
+                                    {f"<li>Aforo: {aforo_input.value} ml</li><li>Alícuota: {alicuota_input.value} ml</li>" if parametros['formula'] == 'con_aforo' else ""}
+                                </ul>
+                            </div>
+
+                            <div style='background: #fff7e6; padding: 10px; border-radius: 5px;'>
+                                <h4 style='margin: 0 0 10px 0; color: #d46b08;'>Fórmula Aplicada</h4>
+                                <p style='margin: 0; font-family: monospace;'>
+                                    mg = N × ml × pmeq × 1000 {f"× (aforo/alícuota)" if parametros['formula'] == 'con_aforo' else ""}
+                                </p>
+                            </div>
+                        </div>
+                        """))
+
+                    except Exception as e:
+                        display(widgets.HTML(f"<div style='color: red;'>❌ Error en cálculo: {str(e)}</div>"))
+
+            # Función para limpiar el formulario
+            def limpiar_formulario(b):
+                N_titulante_input.value = None
+                ml_titulante_input.value = None
+                pmeq_muestra_input.value = None
+                aforo_input.value = None
+                alicuota_input.value = None
+                formula_dropdown.value = 'sin_aforo'
+                with result_output:
+                    result_output.clear_output()
+
+            # Asignar funciones a los botones
+            calcular_btn.on_click(calcular_miligramos)
+            limpiar_btn.on_click(limpiar_formulario)
+            volver_btn.on_click(volver_al_menu)
+
+            # Mostrar interfaz
+            display(widgets.VBox([
+                widgets.HTML("""
+                <div style='background: #1f77b4; color: white; padding: 10px; border-radius: 5px;'>
+                    <h2 style='margin: 0;'>🧪 Calculadora de Miligramos</h2>
+                    <p style='margin: 5px 0 0 0;'>Complete los parámetros requeridos para el cálculo</p>
+                </div>
+                """),
+
+                widgets.VBox([
+                    widgets.HTML("<h4 style='margin: 15px 0 5px 0;'>📊 Parámetros Principales:</h4>"),
+                    N_titulante_input,
+                    ml_titulante_input,
+                    pmeq_muestra_input,
+
+                    widgets.HTML("<h4 style='margin: 15px 0 5px 0;'>⚙️ Configuración Adicional:</h4>"),
+                    formula_dropdown,
+                    aforo_input,
+                    alicuota_input,
+
+                    widgets.HBox([calcular_btn, limpiar_btn, volver_btn],
+                              layout=widgets.Layout(margin='15px 0 0 0'))
+                ]),
+
+                result_output
+            ]))
+
+
+
+#Porcentaje de analito
+    def calcular_porcentaje_analito(output, volver_al_menu):
+        with output:
+            clear_output()
+
+            parametros = {
+                'N_titulante': None,
+                'ml_titulante': None,
+                'pmeq_muestra': None,
+                'gramos_muestra': None,
+                'aforo': None,
+                'alicuota': None,
+                'formula': 'sin_aforo'
+            }
+
+            N_titulante_input = widgets.FloatText(
+                description="Normalidad titulante (N):",
+                style={'description_width': '200px'},
+                layout=widgets.Layout(width='300px')
+            )
+
+            ml_titulante_input = widgets.FloatText(
+                description="ml gastados de titulante:",
+                style={'description_width': '200px'},
+                layout=widgets.Layout(width='300px')
+            )
+
+            pmeq_muestra_input = widgets.FloatText(
+                description="pmeq del analito:",
+                style={'description_width': '200px'},
+                layout=widgets.Layout(width='300px')
+            )
+
+            gramos_muestra_input = widgets.FloatText(
+                description="Gramos de muestra:",
+                style={'description_width': '200px'},
+                layout=widgets.Layout(width='300px')
+            )
+
+            formula_dropdown = widgets.Dropdown(
+                options=[
+                    ('Sin aforo/alícuota', 'sin_aforo'),
+                    ('Con aforo/alícuota', 'con_aforo')
+                ],
+                description='Tipo de cálculo:',
+                style={'description_width': '200px'},
+                layout=widgets.Layout(width='300px')
+            )
+
+            aforo_input = widgets.FloatText(
+                description="Aforo (ml):",
+                style={'description_width': '200px'},
+                layout=widgets.Layout(width='300px'),
+                disabled=True
+            )
+
+            alicuota_input = widgets.FloatText(
+                description="Alícuota (ml):",
+                style={'description_width': '200px'},
+                layout=widgets.Layout(width='300px'),
+                disabled=True
+            )
+
+            calcular_btn = widgets.Button(
+                description="🧪 Calcular %",
+                button_style='success',
+                layout=widgets.Layout(width='150px')
+            )
+
+            limpiar_btn = widgets.Button(
+                description="♻ Limpiar",
+                button_style='warning',
+                layout=widgets.Layout(width='120px')
+            )
+
+            volver_btn = widgets.Button(
+                description="🏠 Menú",
+                button_style='info',
+                layout=widgets.Layout(width='120px')
+            )
+
+            result_output = widgets.Output(
+                layout=widgets.Layout(
+                    border='1px solid #eee',
+                    padding='10px',
+                    margin='10px 0'
+                )
+            )
+
+            def toggle_aforo(change):
+                aforo_input.disabled = change['new'] == 'sin_aforo'
+                alicuota_input.disabled = change['new'] == 'sin_aforo'
+                parametros['formula'] = change['new']
+
+            formula_dropdown.observe(toggle_aforo, names='value')
+
+            def calcular_porcentaje(b):
+                with result_output:
+                    result_output.clear_output()
+
+                    try:
+
+                        if None in [N_titulante_input.value, ml_titulante_input.value,
+                                  pmeq_muestra_input.value, gramos_muestra_input.value]:
+                            display(widgets.HTML("<div style='color: red;'>❌ Error: Complete todos los campos requeridos</div>"))
+                            return
+
+                        if parametros['formula'] == 'con_aforo' and (aforo_input.value is None or alicuota_input.value is None):
+                            display(widgets.HTML("<div style='color: red;'>❌ Error: Ingrese valores para aforo y alícuota</div>"))
+                            return
+
+                        if gramos_muestra_input.value == 0:
+                            display(widgets.HTML("<div style='color: red;'>❌ Error: Los gramos de muestra no pueden ser cero</div>"))
+                            return
+
+
+                        if parametros['formula'] == 'sin_aforo':
+                            porcentaje = (N_titulante_input.value *
+                                        ml_titulante_input.value *
+                                        pmeq_muestra_input.value * 100) / gramos_muestra_input.value
+                        else:
+                            if alicuota_input.value == 0:
+                                display(widgets.HTML("<div style='color: red;'>❌ Error: La alícuota no puede ser cero</div>"))
+                                return
+                            porcentaje = (N_titulante_input.value *
+                                        ml_titulante_input.value *
+                                        pmeq_muestra_input.value *
+                                        (aforo_input.value / alicuota_input.value) * 100) / gramos_muestra_input.value
+
+
+                        display(widgets.HTML(f"""
+                        <div style='background: #f8f9fa; padding: 15px; border-radius: 5px;'>
+                            <h3 style='color: #1f77b4; margin-top: 0;'>🧪 Resultado del Cálculo</h3>
+
+                            <div style='background: #f6ffed; padding: 10px; border-radius: 5px; margin-bottom: 10px;'>
+                                <p style='font-size: 1.2em;'>
+                                    <strong>Porcentaje del analito:</strong>
+                                    <span style='color: #fa8c16; font-weight: bold;'>{porcentaje:.4f}%</span>
+                                </p>
+                            </div>
+
+                            <div style='background: #e6f7ff; padding: 10px; border-radius: 5px; margin-bottom: 10px;'>
+                                <h4 style='margin: 0 0 10px 0; color: #1890ff;'>Parámetros Utilizados</h4>
+                                <ul style='margin: 0; padding-left: 20px;'>
+                                    <li>Normalidad titulante: {N_titulante_input.value} N</li>
+                                    <li>ml gastados de titulante: {ml_titulante_input.value} ml</li>
+                                    <li>pmeq del analito: {pmeq_muestra_input.value}</li>
+                                    <li>Gramos de muestra: {gramos_muestra_input.value} g</li>
+                                    {f"<li>Aforo: {aforo_input.value} ml</li><li>Alícuota: {alicuota_input.value} ml</li>" if parametros['formula'] == 'con_aforo' else ""}
+                                </ul>
+                            </div>
+
+                            <div style='background: #fff7e6; padding: 10px; border-radius: 5px;'>
+                                <h4 style='margin: 0 0 10px 0; color: #d46b08;'>Fórmula Aplicada</h4>
+                                <p style='margin: 0; font-family: monospace;'>
+                                    % = (N × ml × pmeq × {f"(aforo/alícuota) × " if parametros['formula'] == 'con_aforo' else ""}100) / gramos muestra
+                                </p>
+                            </div>
+                        </div>
+                        """))
+
+                    except Exception as e:
+                        display(widgets.HTML(f"<div style='color: red;'>❌ Error en cálculo: {str(e)}</div>"))
+
+            def limpiar_formulario(b):
+                N_titulante_input.value = None
+                ml_titulante_input.value = None
+                pmeq_muestra_input.value = None
+                gramos_muestra_input.value = None
+                aforo_input.value = None
+                alicuota_input.value = None
+                formula_dropdown.value = 'sin_aforo'
+                with result_output:
+                    result_output.clear_output()
+
+            calcular_btn.on_click(calcular_porcentaje)
+            limpiar_btn.on_click(limpiar_formulario)
+            volver_btn.on_click(volver_al_menu)
+
+            display(widgets.VBox([
+                widgets.HTML("""
+                <div style='background: #1f77b4; color: white; padding: 10px; border-radius: 5px;'>
+                    <h2 style='margin: 0;'>🔍 Calculadora de Porcentaje de Analito</h2>
+                    <p style='margin: 5px 0 0 0;'>Complete los parámetros requeridos para el cálculo</p>
+                </div>
+                """),
+
+                widgets.VBox([
+                    widgets.HTML("<h4 style='margin: 15px 0 5px 0;'>📊 Parámetros Principales:</h4>"),
+                    N_titulante_input,
+                    ml_titulante_input,
+                    pmeq_muestra_input,
+                    gramos_muestra_input,
+
+                    widgets.HTML("<h4 style='margin: 15px 0 5px 0;'>⚙️ Configuración Adicional:</h4>"),
+                    formula_dropdown,
+                    aforo_input,
+                    alicuota_input,
+
+                    widgets.HBox([calcular_btn, limpiar_btn, volver_btn],
+                              layout=widgets.Layout(margin='15px 0 0 0'))
+                ]),
+
+                result_output
+            ]))
+
+
+
+
+#Potencial Electrico
+
+    def calcular_potencial_electrico(output, volver_al_menu):
+        with output:
+            clear_output()
+
+            especie_seleccionada_1 = None
+            especie_seleccionada_2 = None
+
+            concentracion1_input = widgets.FloatText(
+                description="Conc. Especie 1 (N):",
+                value=1.0,
+                disabled=True,
+                style={'description_width': '150px'}
+            )
+            volumen1_input = widgets.FloatText(
+                description="Volumen (ml):",
+                value=50.0,
+                disabled=True,
+                style={'description_width': '150px'}
+            )
+            concentracion2_input = widgets.FloatText(
+                description="Conc. Especie 2 (N):",
+                value=1.0,
+                disabled=True,
+                style={'description_width': '150px'}
+            )
+            volumen2_input = widgets.FloatText(
+                description="Volumen (ml):",
+                value=50.0,
+                disabled=True,
+                style={'description_width': '150px'}
+            )
+
+            seleccion1_label = widgets.Label(
+                value="🟦 Especie 1: Ninguna selección",
+                style={'font_weight': 'bold'}
+            )
+            seleccion2_label = widgets.Label(
+                value="🟥 Especie 2: Ninguna selección",
+                style={'font_weight': 'bold'}
+            )
+
+            calcular_btn = widgets.Button(
+                description="⚡ Calcular Potencial",
+                button_style='success',
+                disabled=True,
+                layout=widgets.Layout(width='auto', margin='5px')
+            )
+            limpiar_btn = widgets.Button(
+                description="♻ Limpiar Selección",
+                button_style='warning',
+                layout=widgets.Layout(width='auto', margin='5px')
+            )
+            volver_btn = widgets.Button(
+                description="🏠 Volver al menú",
+                button_style='info',
+                layout=widgets.Layout(width='auto', margin='5px')
+            )
+
+            result_output = widgets.Output(
+                layout=widgets.Layout(
+                    border='1px solid #ccc',
+                    padding='10px',
+                    margin='10px 0'
+                )
+            )
+
+            def crear_boton_compuesto(compuesto):
+                potencial = compuestos[compuesto]['potencial_estandar']
+                color = 'lightcoral' if potencial < 0 else 'lightgreen'
+
+                btn = widgets.Button(
+                    description=f"{compuesto} (E°: {potencial} V)",
+                    layout=widgets.Layout(
+                        width='auto',
+                        margin='2px',
+                        padding='5px'
+                    ),
+                    style={'button_color': color},
+                    tooltip=f"Carga: {compuestos[compuesto]['carga']}"
+                )
+
+                def on_click(b):
+                    nonlocal especie_seleccionada_1, especie_seleccionada_2
+                    if especie_seleccionada_1 is None:
+                        especie_seleccionada_1 = compuesto
+                        seleccion1_label.value = f"🟦 Especie 1: {compuesto} | E°: {potencial} V | Carga: {compuestos[compuesto]['carga']}"
+                        concentracion1_input.disabled = False
+                        volumen1_input.disabled = False
+                    elif especie_seleccionada_2 is None and compuesto != especie_seleccionada_1:
+                        especie_seleccionada_2 = compuesto
+                        seleccion2_label.value = f"🟥 Especie 2: {compuesto} | E°: {potencial} V | Carga: {compuestos[compuesto]['carga']}"
+                        concentracion2_input.disabled = False
+                        volumen2_input.disabled = False
+                        calcular_btn.disabled = False
+
+                    with output:
+                        clear_output()
+                        display(widgets.VBox([
+                            widgets.HTML("<h3 style='color: #1f77b4;'>🔌 Calculadora de Potencial Electroquímico</h3>"),
+                            widgets.HBox([seleccion1_label, seleccion2_label]),
+                            widgets.HTML("<hr style='margin: 10px 0;'>"),
+                            widgets.HBox([
+                                widgets.VBox([
+                                    widgets.Label("Parámetros Especie 1:"),
+                                    concentracion1_input,
+                                    volumen1_input
+                                ]),
+                                widgets.VBox([
+                                    widgets.Label("Parámetros Especie 2:"),
+                                    concentracion2_input,
+                                    volumen2_input
+                                ])
+                            ]),
+                            widgets.HTML("<hr style='margin: 10px 0;'>"),
+                            widgets.HBox([calcular_btn, limpiar_btn, volver_btn]),
+                            widgets.HTML("<h4 style='margin: 10px 0;'>📋 Lista de Compuestos:</h4>"),
+                            grid_botones,
+                            result_output
+                        ]))
+
+                btn.on_click(on_click)
+                return btn
+
+            botones = [crear_boton_compuesto(comp) for comp in sorted(compuestos.keys())]
+            grid_botones = widgets.GridBox(
+                botones,
+                layout=widgets.Layout(
+                    grid_template_columns='repeat(4, 250px)',
+                    grid_gap='8px',
+                    max_height='500px',
+                    overflow_y='auto',
+                    padding='10px',
+                    border='1px solid #eee'
+                )
+            )
+
+            def calcular_potencial(b):
+                with result_output:
+                    clear_output()
+                    try:
+                        data1 = compuestos[especie_seleccionada_1]
+                        data2 = compuestos[especie_seleccionada_2]
+
+#Cambiar para ver el exceso
+                        if data1["potencial_estandar"] > data2["potencial_estandar"]:
+                            especie_Red, especie_Ox = especie_seleccionada_2, especie_seleccionada_1
+                            data_Red, data_Ox = data2, data1
+                            conc_Red = concentracion2_input.value
+                            vol_Red = volumen2_input.value
+                            conc_Ox = concentracion1_input.value
+                            vol_Ox = volumen1_input.value
+                        else:
+                            especie_Red, especie_Ox = especie_seleccionada_1, especie_seleccionada_2
+                            data_Red, data_Ox = data1, data2
+                            conc_Red = concentracion1_input.value
+                            vol_Red = volumen1_input.value
+                            conc_Ox = concentracion2_input.value
+                            vol_Ox = volumen2_input.value
+
+                        num_electrones = abs(data_Red["carga"] - data_Ox["carga"])
+                        if num_electrones == 0:
+                            num_electrones = 1
+
+                        pmeq_Red = conc_Red * vol_Red
+                        pmeq_Ox = conc_Ox * vol_Ox
+
+                        if pmeq_Ox == 0:
+                            display(widgets.HTML("<div style='color: red;'>❌ Error: El volumen o concentración de la especie oxidada no puede ser cero</div>"))
+                            return
+
+                        if (pmeq_Red - pmeq_Ox) <= 0:
+                            display(widgets.HTML("<div style='color: red;'>❌ Error: La cantidad de especie reductora debe ser mayor que la oxidante</div>"))
+                            return
+
+                        E = (data_Red["potencial_estandar"] -
+                            (0.0592/num_electrones) * math.log10((pmeq_Red - pmeq_Ox)/pmeq_Ox))
+
+                        display(widgets.HTML(f"""
+                        <div style='background: #f8f9fa; padding: 15px; border-radius: 5px;'>
+                            <h3 style='color: #1f77b4; margin-top: 0;'>⚡ Resultados del Cálculo</h3>
+
+                            <div style='display: flex; justify-content: space-between;'>
+                                <div style='background: #e6f7ff; padding: 10px; border-radius: 5px; width: 48%;'>
+                                    <h4 style='margin: 0 0 10px 0; color: #1890ff;'>Especie Reductora</h4>
+                                    <p><strong>Compuesto:</strong> {especie_Red}</p>
+                                    <p><strong>Potencial estándar (E°):</strong> {data_Red['potencial_estandar']} V</p>
+                                    <p><strong>Concentración:</strong> {conc_Red} N</p>
+                                    <p><strong>Volumen:</strong> {vol_Red} ml</p>
+                                    <p><strong>pmeq:</strong> {pmeq_Red:.4f}</p>
+                                    <p><strong>Carga:</strong> {data_Red['carga']}</p>
+                                </div>
+
+                                <div style='background: #fff1f0; padding: 10px; border-radius: 5px; width: 48%;'>
+                                    <h4 style='margin: 0 0 10px 0; color: #f5222d;'>Especie Oxidante</h4>
+                                    <p><strong>Compuesto:</strong> {especie_Ox}</p>
+                                    <p><strong>Potencial estándar (E°):</strong> {data_Ox['potencial_estandar']} V</p>
+                                    <p><strong>Concentración:</strong> {conc_Ox} N</p>
+                                    <p><strong>Volumen:</strong> {vol_Ox} ml</p>
+                                    <p><strong>pmeq:</strong> {pmeq_Ox:.4f}</p>
+                                    <p><strong>Carga:</strong> {data_Ox['carga']}</p>
+                                </div>
+                            </div>
+
+                            <div style='margin-top: 15px; background: #f6ffed; padding: 10px; border-radius: 5px;'>
+                                <h4 style='margin: 0 0 10px 0; color: #52c41a;'>Detalles del Cálculo</h4>
+                                <p><strong>Electrones transferidos (n):</strong> {num_electrones}</p>
+                                <p><strong>Ecuación:</strong> E = E° - (0.0592/n) * log[(pmeq_Red - pmeq_Ox)/pmeq_Ox]</p>
+                                <p><strong>Cálculo:</strong> E = {data_Red['potencial_estandar']} - (0.0592/{num_electrones}) * log[({pmeq_Red:.4f}-{pmeq_Ox:.4f})/{pmeq_Ox:.4f}]</p>
+                                <h3 style='margin: 10px 0 0 0;'>Potencial calculado: <span style='color: #fa8c16;'>{E:.4f} V</span></h3>
+                            </div>
+                        </div>
+                        """))
+
+                    except Exception as e:
+                        display(widgets.HTML(f"<div style='color: red;'>❌ Error en cálculo: {str(e)}</div>"))
+
+            def limpiar_seleccion(b):
+                nonlocal especie_seleccionada_1, especie_seleccionada_2
+                especie_seleccionada_1 = None
+                especie_seleccionada_2 = None
+                seleccion1_label.value = "🟦 Especie 1: Ninguna selección"
+                seleccion2_label.value = "🟥 Especie 2: Ninguna selección"
+                concentracion1_input.value = 1.0
+                volumen1_input.value = 50.0
+                concentracion2_input.value = 1.0
+                volumen2_input.value = 50.0
+                concentracion1_input.disabled = True
+                volumen1_input.disabled = True
+                concentracion2_input.disabled = True
+                volumen2_input.disabled = True
+                calcular_btn.disabled = True
+                with result_output:
+                    clear_output()
+
+            calcular_btn.on_click(calcular_potencial)
+            limpiar_btn.on_click(limpiar_seleccion)
+            volver_btn.on_click(volver_al_menu)
+
+            display(widgets.VBox([
+                widgets.HTML("""
+                <div style='background: #1f77b4; color: white; padding: 10px; border-radius: 5px;'>
+                    <h2 style='margin: 0;'>Calculadora de Potencial Electroquímico</h2>
+                    <p style='margin: 5px 0 0 0;'>Seleccione dos compuestos e ingrese concentraciones y volúmenes</p>
+                </div>
+                """),
+                widgets.HBox([seleccion1_label, seleccion2_label]),
+                widgets.HTML("<hr style='margin: 10px 0;'>"),
+                widgets.HBox([
+                    widgets.VBox([
+                        widgets.Label("Parámetros Especie 1:"),
+                        concentracion1_input,
+                        volumen1_input
+                    ]),
+                    widgets.VBox([
+                        widgets.Label("Parámetros Especie 2:"),
+                        concentracion2_input,
+                        volumen2_input
+                    ])
+                ]),
+                widgets.HTML("<hr style='margin: 10px 0;'>"),
+                widgets.HBox([calcular_btn, limpiar_btn, volver_btn]),
+                widgets.HTML("""
+                <div style='background: #f0f0f0; padding: 5px 10px; border-radius: 5px; margin: 10px 0;'>
+                    <h4 style='margin: 0;'>📋 Lista de Compuestos Disponibles</h4>
+                </div>
+                """),
+                grid_botones,
+                result_output
+            ]))
+
+
+#Peso Molecular
+
+    def peso_molecular(output, volver_al_menu):
+        with output:
+            clear_output()
+
+            elementos_agregados = []
+
+            elemento_input = widgets.Combobox(
+                placeholder='Seleccione un elemento (ej: H)',
+                options=sorted(ETP.keys()),
+                description="Elemento:",
+                style={'description_width': '100px'},
+                layout=widgets.Layout(width='300px')
+            )
+
+            num_atomos_input = widgets.IntText(
+                description="N° átomos:",
+                value=1,
+                min=1,
+                style={'description_width': '100px'},
+                layout=widgets.Layout(width='150px')
+            )
+
+            agregar_btn = widgets.Button(
+                description="➕ Agregar",
+                button_style='success',
+                tooltip="Agregar elemento a la lista",
+                layout=widgets.Layout(width='120px')
+            )
+
+            calcular_btn = widgets.Button(
+                description="🧮 Calcular PM",
+                button_style='primary',
+                disabled=not elementos_agregados,
+                layout=widgets.Layout(width='150px')
+            )
+
+            limpiar_btn = widgets.Button(
+                description="♻ Limpiar",
+                button_style='warning',
+                layout=widgets.Layout(width='120px')
+            )
+
+            volver_btn = widgets.Button(
+                description="🏠 Menú",
+                button_style='info',
+                layout=widgets.Layout(width='120px')
+            )
+
+            tabla_elementos = widgets.Output(
+                layout=widgets.Layout(
+                    width='100%',
+                    max_height='300px',
+                    overflow_y='auto',
+                    border='1px solid #ddd',
+                    margin='10px 0'
+                )
+            )
+
+            result_output = widgets.Output(
+                layout=widgets.Layout(
+                    border='1px solid #eee',
+                    padding='10px',
+                    margin='10px 0'
+                )
+            )
+
+            def actualizar_tabla():
+                with tabla_elementos:
+                    tabla_elementos.clear_output()
+
+                    if not elementos_agregados:
+                        print("No hay elementos agregados")
+                        return
+
+                    html = """
+                    <style>
+                        .pm-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                        }
+                        .pm-table th {
+                            background-color: #1f77b4;
+                            color: white;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        .pm-table td {
+                            padding: 8px;
+                            border-bottom: 1px solid #ddd;
+                        }
+                        .pm-table tr:nth-child(even) {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                    <table class="pm-table">
+                        <tr>
+                            <th>Elemento</th>
+                            <th>Símbolo</th>
+                            <th>Átomos</th>
+                            <th>Peso Atómico</th>
+                            <th>Subtotal</th>
+                            <th>Acción</th>
+                        </tr>
+                    """
+
+                    for i, (elemento, atomos) in enumerate(elementos_agregados):
+                        peso = ETP[elemento]
+                        subtotal = atomos * peso
+
+                        html += f"""
+                        <tr>
+                            <td>{elemento}</td>
+                            <td>{elemento}</td>
+                            <td>{atomos}</td>
+                            <td>{peso:.4f}</td>
+                            <td>{subtotal:.4f}</td>
+                            <td>
+                                <button onclick="IPython.notebook.kernel.execute('elementos_agregados.pop({i})')">
+                                    ❌
+                                </button>
+                            </td>
+                        </tr>
+                        """
+
+                    html += "</table>"
+                    display(widgets.HTML(html))
+
+            def agregar_elemento(b):
+                elemento = elemento_input.value.strip()
+                if not elemento or elemento not in ETP:
+                    with result_output:
+                        result_output.clear_output()
+                        display(widgets.HTML("<div style='color: red;'>❌ Error: Elemento no válido</div>"))
+                    return
+
+                atomos = num_atomos_input.value
+                elementos_agregados.append((elemento, atomos))
+                calcular_btn.disabled = False
+
+                elemento_input.value = ''
+                num_atomos_input.value = 1
+
+                actualizar_tabla()
+                with result_output:
+                    result_output.clear_output()
+
+            def calcular_pm(b):
+                with result_output:
+                    result_output.clear_output()
+
+                    if not elementos_agregados:
+                        display(widgets.HTML("<div style='color: red;'>⚠ No hay elementos agregados</div>"))
+                        return
+
+                    peso_total = sum(atomos * ETP[elemento] for elemento, atomos in elementos_agregados)
+
+                    display(widgets.HTML(f"""
+                    <div style='background: #f8f9fa; padding: 15px; border-radius: 5px;'>
+                        <h3 style='color: #1f77b4; margin-top: 0;'>🧪 Resultado del Cálculo</h3>
+
+                        <div style='background: #f6ffed; padding: 10px; border-radius: 5px; margin-bottom: 10px;'>
+                            <p style='font-size: 1.2em;'>
+                                <strong>Peso Molecular Total:</strong>
+                                <span style='color: #fa8c16; font-weight: bold;'>{peso_total:.4f} g/mol</span>
+                            </p>
+                        </div>
+
+                        <div style='background: #e6f7ff; padding: 10px; border-radius: 5px;'>
+                            <h4 style='margin: 0 0 10px 0; color: #1890ff;'>Desglose</h4>
+                            <ul style='margin: 0; padding-left: 20px;'>
+                    """ +
+                    ''.join([f"<li>{elemento} × {atomos} = {atomos * ETP[elemento]:.4f} g/mol</li>"
+                            for elemento, atomos in elementos_agregados]) +
+                    """
+                            </ul>
+                        </div>
+                    </div>
+                    """))
+
+            def limpiar_todo(b):
+                elementos_agregados.clear()
+                calcular_btn.disabled = True
+                actualizar_tabla()
+                with result_output:
+                    result_output.clear_output()
+
+            agregar_btn.on_click(agregar_elemento)
+            calcular_btn.on_click(calcular_pm)
+            limpiar_btn.on_click(limpiar_todo)
+            volver_btn.on_click(volver_al_menu)
+
+            display(widgets.VBox([
+                widgets.HTML("""
+                <div style='background: #1f77b4; color: white; padding: 10px; border-radius: 5px;'>
+                    <h2 style='margin: 0;'>🧬 Calculadora de Peso Molecular</h2>
+                    <p style='margin: 5px 0 0 0;'>Agregue elementos para calcular el peso molecular total</p>
+                </div>
+                """),
+
+                widgets.HBox([
+                    elemento_input,
+                    num_atomos_input,
+                    agregar_btn
+                ], layout=widgets.Layout(margin='10px 0')),
+
+                widgets.HTML("<h4 style='margin: 5px 0;'>📋 Elementos agregados:</h4>"),
+                tabla_elementos,
+
+                widgets.HBox([
+                    calcular_btn,
+                    limpiar_btn,
+                    volver_btn
+                ], layout=widgets.Layout(margin='10px 0')),
+
+                result_output
+            ]))
+
+            actualizar_tabla()
+
+
+    asignar_funciones()
+    display(buttons_box, output)
+
+main_interface()
