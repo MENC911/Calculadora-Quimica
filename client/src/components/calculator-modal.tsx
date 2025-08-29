@@ -49,13 +49,6 @@ export default function CalculatorModal({ calculatorType, isOpen, onClose }: Cal
           <DialogTitle data-testid="text-modal-title">
             {calculatorType ? calculatorTitles[calculatorType] : "Calculadora"}
           </DialogTitle>
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
-            data-testid="button-close-modal"
-          >
-            <X className="w-6 h-6" />
-          </button>
         </DialogHeader>
         <div className="py-4">
           {renderCalculator()}

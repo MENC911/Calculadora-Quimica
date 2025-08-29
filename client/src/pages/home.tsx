@@ -54,7 +54,7 @@ export default function Home() {
             <Beaker className="w-16 h-16 mx-auto mb-4 text-white" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4" data-testid="title-main">
-            Analytica Toolbox
+            Calculadora Química
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-blue-100" data-testid="text-subtitle">
             Herramientas interactivas para cálculos en química analítica y electroquímica

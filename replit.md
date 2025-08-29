@@ -1,8 +1,8 @@
-# ChemCalc - Chemistry Calculator Application
+# Calculadora Química - Chemistry Calculator Application
 
 ## Overview
 
-ChemCalc is a comprehensive web application designed for chemistry calculations, providing specialized calculators for various analytical chemistry computations. The application features six core calculators: Peso Miliequivalente (milliequivalent weight), Normalidad (normality), Miligramos (milligrams calculation), Porcentaje (percentage analysis), Potencial Eléctrico (electrical potential using Nernst equation), and Peso Molecular (molecular weight). Built as a modern single-page application, it serves chemistry students and professionals who need quick access to reliable calculation tools for volumetric analysis, electrochemistry, and molecular composition analysis.
+Calculadora Química is a comprehensive web application designed for chemistry calculations, providing specialized calculators for various analytical chemistry computations. The application features six core calculators: Peso Miliequivalente (milliequivalent weight), Normalidad (normality), Miligramos (milligrams calculation), Porcentaje (percentage analysis), Potencial Eléctrico (electrical potential using Nernst equation), and Peso Molecular (molecular weight). Built as a modern single-page application, it serves chemistry students and professionals who need quick access to reliable calculation tools for volumetric analysis, electrochemistry, and molecular composition analysis.
 
 ## User Preferences
 
