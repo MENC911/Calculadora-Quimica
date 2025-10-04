@@ -1,0 +1,610 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytica Toolbox - Herramientas de Química Analítica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    muted: {
+                        DEFAULT: "var(--muted)",
+                        foreground: "var(--muted-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    border: "var(--border)",
+                    input: "var(--input)",
+                    ring: "var(--ring)",
+                },
+                fontFamily: {
+                    sans: ["Inter", "system-ui", "sans-serif"],
+                }
+            },
+        }
+    };
+    </script>
+    <style>
+        :root {
+            --background: hsl(210 40% 98%);
+            --foreground: hsl(222.2 84% 4.9%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(222.2 84% 4.9%);
+            --primary: hsl(210 79% 57%);
+            --primary-foreground: hsl(210 40% 98%);
+            --secondary: hsl(210 40% 96%);
+            --secondary-foreground: hsl(222.2 47.4% 11.2%);
+            --muted: hsl(210 40% 96%);
+            --muted-foreground: hsl(215.4 16.3% 46.9%);
+            --accent: hsl(210 40% 96%);
+            --accent-foreground: hsl(222.2 47.4% 11.2%);
+            --border: hsl(214.3 31.8% 91.4%);
+            --input: hsl(214.3 31.8% 91.4%);
+            --ring: hsl(210 79% 57%);
+            --radius: 0.75rem;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/index.js"></script>
+</head>
+<body class="bg-background font-sans antialiased">
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-br from-primary to-blue-600 text-white">
+        <div class="container mx-auto px-4 py-16 text-center">
+            <div class="mb-6">
+                <svg class="w-16 h-16 mx-auto mb-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 8.172V5L8 4z"></path>
+                </svg>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Analytica Toolbox</h1>
+            <p class="text-xl md:text-2xl mb-8 text-blue-100">
+                Herramientas interactivas para cálculos en química analítica y electroquímica
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <span class="px-4 py-2 bg-white/20 rounded-full text-sm font-medium">Análisis Volumétrico</span>
+                <span class="px-4 py-2 bg-white/20 rounded-full text-sm font-medium">Electroquímica</span>
+                <span class="px-4 py-2 bg-white/20 rounded-full text-sm font-medium">Cálculos Precisos</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-foreground mb-4">Calculadoras Disponibles</h2>
+            <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Selecciona la herramienta que necesitas para realizar tus cálculos de química analítica
+            </p>
+        </div>
+
+        <!-- Calculator Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- @COMPONENT: CalculatorCard [Peso Miliequivalente] -->
+            <div class="bg-card rounded-lg border border-border p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16l3-1m-3 1l-6-2"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-card-foreground">Peso Miliequivalente</h3>
+                </div>
+                <p class="text-sm text-muted-foreground mb-4">
+                    Calcula el peso miliequivalente (pmeq) de una sustancia basado en su peso molecular y número de electrones.
+                </p>
+                <button class="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors font-medium" onclick="openCalculator('miliequivalente')">
+                    Abrir Calculadora
+                </button>
+            </div>
+            <!-- @END_COMPONENT: CalculatorCard -->
+
+            <!-- @COMPONENT: CalculatorCard [Normalidad] -->
+            <div class="bg-card rounded-lg border border-border p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-card-foreground">Normalidad</h3>
+                </div>
+                <p class="text-sm text-muted-foreground mb-4">
+                    Determina la normalidad de una solución usando masa del soluto, pmeq y volumen.
+                </p>
+                <button class="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors font-medium" onclick="openCalculator('normalidad')">
+                    Abrir Calculadora
+                </button>
+            </div>
+            <!-- @END_COMPONENT: CalculatorCard -->
+
+            <!-- @COMPONENT: CalculatorCard [Cálculo de Miligramos] -->
+            <div class="bg-card rounded-lg border border-border p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-card-foreground">Cálculo de Miligramos</h3>
+                </div>
+                <p class="text-sm text-muted-foreground mb-4">
+                    Calcula miligramos de analito en titulaciones volumétricas con factores de dilución.
+                </p>
+                <button class="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors font-medium" onclick="openCalculator('miligramos')">
+                    Abrir Calculadora
+                </button>
+            </div>
+            <!-- @END_COMPONENT: CalculatorCard -->
+
+            <!-- @COMPONENT: CalculatorCard [Porcentaje de Analito] -->
+            <div class="bg-card rounded-lg border border-border p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-card-foreground">Porcentaje de Analito</h3>
+                </div>
+                <p class="text-sm text-muted-foreground mb-4">
+                    Determina el porcentaje del analito en una muestra mediante análisis volumétrico.
+                </p>
+                <button class="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors font-medium" onclick="openCalculator('porcentaje')">
+                    Abrir Calculadora
+                </button>
+            </div>
+            <!-- @END_COMPONENT: CalculatorCard -->
+
+            <!-- @COMPONENT: CalculatorCard [Potencial Eléctrico] -->
+            <div class="bg-card rounded-lg border border-border p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-card-foreground">Potencial Eléctrico</h3>
+                </div>
+                <p class="text-sm text-muted-foreground mb-4">
+                    Calcula el potencial de celda usando la ecuación de Nernst y potenciales estándar.
+                </p>
+                <button class="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors font-medium" onclick="openCalculator('potencial')">
+                    Abrir Calculadora
+                </button>
+            </div>
+            <!-- @END_COMPONENT: CalculatorCard -->
+
+            <!-- @COMPONENT: CalculatorCard [Peso Molecular] -->
+            <div class="bg-card rounded-lg border border-border p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 8.172V5L8 4z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-card-foreground">Peso Molecular</h3>
+                </div>
+                <p class="text-sm text-muted-foreground mb-4">
+                    Calcula el peso molecular de compuestos basado en su composición elemental.
+                </p>
+                <button class="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors font-medium" onclick="openCalculator('molecular')">
+                    Abrir Calculadora
+                </button>
+            </div>
+            <!-- @END_COMPONENT: CalculatorCard -->
+        </div>
+    </div>
+
+    <!-- Calculator Modal -->
+    <div id="calculatorModal" class="fixed inset-0 bg-black/50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-card rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6 border-b border-border">
+                    <div class="flex justify-between items-center">
+                        <h3 id="modalTitle" class="text-xl font-semibold text-card-foreground">Calculadora</h3>
+                        <button onclick="closeCalculator()" class="text-muted-foreground hover:text-foreground">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="modalContent" class="p-6">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chemical Elements Data (ETP)
+        const ETP = {
+            "H": 1.0079, "He": 4.0026, "Li": 6.941, "Be": 9.0122, "B": 10.811, "C": 12.0107, "N": 14.0067, "O": 15.9994, "F": 18.9984, "Ne": 20.1797, "Na": 22.9897,
+            "Mg": 24.305, "Al": 26.9815, "Si": 28.0855, "P": 30.9738, "S": 32.065, "Cl": 35.453, "K": 39.0983, "Ar": 39.948, "Ca": 40.078, "Sc": 44.9559, "Ti": 47.867,
+            "V": 50.9415, "Cr": 51.9961, "Mn": 54.938, "Fe": 55.845, "Ni": 58.6934, "Co": 58.9332, "Cu": 63.546, "Zn": 65.39, "Ga": 69.723, "Ge": 72.64, "As": 74.9216,
+            "Se": 78.96, "Br": 79.904, "Kr": 83.8, "Rb": 85.4678, "Sr": 87.62, "Y": 88.9059, "Zr": 91.224, "Nb": 92.9064, "Mo": 95.94, "Tc": 98, "Ru": 101.07,
+            "Rh": 102.9055, "Pd": 106.42, "Ag": 107.8682, "Cd": 112.411, "In": 114.818, "Sn": 118.71, "Sb": 121.76, "I": 126.9045, "Te": 127.6, "Xe": 131.293
+        };
+
+        // Electrochemical Compounds Data
+        const compuestos = {
+            "Ag+": {"potencial_estandar": +0.799, "carga": +1},
+            "Cu2+": {"potencial_estandar": +0.337, "carga": +2},
+            "Fe3+": {"potencial_estandar": +0.771, "carga": +3},
+            "Zn2+": {"potencial_estandar": -0.763, "carga": +2},
+            "H+": {"potencial_estandar": 0.000, "carga": +1},
+            "Cl2": {"potencial_estandar": +1.359, "carga": 0},
+            "Br2(l)": {"potencial_estandar": +1.065, "carga": 0},
+            "I2(s)": {"potencial_estandar": +0.5355, "carga": 0}
+        };
+
+        function openCalculator(type) {
+            const modal = document.getElementById('calculatorModal');
+            const title = document.getElementById('modalTitle');
+            const content = document.getElementById('modalContent');
+            
+            modal.classList.remove('hidden');
+            
+            switch(type) {
+                case 'miliequivalente':
+                    title.textContent = 'Peso Miliequivalente';
+                    content.innerHTML = getMiliequivalenteForm();
+                    break;
+                case 'normalidad':
+                    title.textContent = 'Normalidad';
+                    content.innerHTML = getNormalidadForm();
+                    break;
+                case 'miligramos':
+                    title.textContent = 'Cálculo de Miligramos';
+                    content.innerHTML = getMiligramosForm();
+                    break;
+                case 'porcentaje':
+                    title.textContent = 'Porcentaje de Analito';
+                    content.innerHTML = getPorcentajeForm();
+                    break;
+                case 'potencial':
+                    title.textContent = 'Potencial Eléctrico';
+                    content.innerHTML = getPotencialForm();
+                    break;
+                case 'molecular':
+                    title.textContent = 'Peso Molecular';
+                    content.innerHTML = getMolecularForm();
+                    break;
+            }
+        }
+
+        function closeCalculator() {
+            document.getElementById('calculatorModal').classList.add('hidden');
+        }
+
+        function getMiliequivalenteForm() {
+            return `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Peso Molecular (g/mol)</label>
+                        <input type="number" id="pesoMolecular" class="w-full p-3 border border-input rounded-md" placeholder="Ingrese el peso molecular">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Número de Electrones</label>
+                        <input type="number" id="numElectrones" class="w-full p-3 border border-input rounded-md" placeholder="Número de electrones transferidos">
+                    </div>
+                    <button onclick="calcularMiliequivalente()" class="w-full bg-primary text-primary-foreground py-3 rounded-md hover:bg-primary/90 font-medium">
+                        Calcular Peso Miliequivalente
+                    </button>
+                    <div id="resultadoMiliequivalente" class="mt-4 p-4 bg-muted rounded-md hidden">
+                        <h4 class="font-semibold mb-2">Resultado:</h4>
+                        <p id="resultadoMiliequivalenteText"></p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getNormalidadForm() {
+            return `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Masa del Soluto (g)</label>
+                        <input type="number" id="masaSoluto" class="w-full p-3 border border-input rounded-md" placeholder="Masa en gramos">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Peso Miliequivalente (g/meq)</label>
+                        <input type="number" id="pmeqNormalidad" class="w-full p-3 border border-input rounded-md" placeholder="PMEQ en g/meq">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Volumen de Solución (L)</label>
+                        <input type="number" id="volumenSolucion" class="w-full p-3 border border-input rounded-md" placeholder="Volumen en litros">
+                    </div>
+                    <button onclick="calcularNormalidad()" class="w-full bg-primary text-primary-foreground py-3 rounded-md hover:bg-primary/90 font-medium">
+                        Calcular Normalidad
+                    </button>
+                    <div id="resultadoNormalidad" class="mt-4 p-4 bg-muted rounded-md hidden">
+                        <h4 class="font-semibold mb-2">Resultado:</h4>
+                        <p id="resultadoNormalidadText"></p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getMiligramosForm() {
+            return `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Volumen Gastado (mL)</label>
+                        <input type="number" id="volumenGastado" class="w-full p-3 border border-input rounded-md" placeholder="Volumen del titulante">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Normalidad del Titulante</label>
+                        <input type="number" id="normalidadTitulante" class="w-full p-3 border border-input rounded-md" placeholder="Normalidad">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Peso Miliequivalente del Analito</label>
+                        <input type="number" id="pmeqAnalito" class="w-full p-3 border border-input rounded-md" placeholder="PMEQ del analito">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Factor de Dilución</label>
+                        <input type="number" id="factorDilucion" class="w-full p-3 border border-input rounded-md" placeholder="Factor de dilución (opcional)" value="1">
+                    </div>
+                    <button onclick="calcularMiligramos()" class="w-full bg-primary text-primary-foreground py-3 rounded-md hover:bg-primary/90 font-medium">
+                        Calcular Miligramos
+                    </button>
+                    <div id="resultadoMiligramos" class="mt-4 p-4 bg-muted rounded-md hidden">
+                        <h4 class="font-semibold mb-2">Resultado:</h4>
+                        <p id="resultadoMiligramosText"></p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getPorcentajeForm() {
+            return `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Miligramos de Analito</label>
+                        <input type="number" id="mgAnalito" class="w-full p-3 border border-input rounded-md" placeholder="mg de analito calculados">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Peso de la Muestra (g)</label>
+                        <input type="number" id="pesoMuestra" class="w-full p-3 border border-input rounded-md" placeholder="Peso de la muestra">
+                    </div>
+                    <button onclick="calcularPorcentaje()" class="w-full bg-primary text-primary-foreground py-3 rounded-md hover:bg-primary/90 font-medium">
+                        Calcular Porcentaje
+                    </button>
+                    <div id="resultadoPorcentaje" class="mt-4 p-4 bg-muted rounded-md hidden">
+                        <h4 class="font-semibold mb-2">Resultado:</h4>
+                        <p id="resultadoPorcentajeText"></p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getPotencialForm() {
+            return `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Especie Química</label>
+                        <select id="especieQuimica" class="w-full p-3 border border-input rounded-md">
+                            <option value="">Seleccione una especie</option>
+                            ${Object.keys(compuestos).map(especie => 
+                                `<option value="${especie}">${especie} (E° = ${compuestos[especie].potencial_estandar} V)</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Concentración (M)</label>
+                        <input type="number" id="concentracion" class="w-full p-3 border border-input rounded-md" placeholder="Concentración molar">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Temperatura (K)</label>
+                        <input type="number" id="temperatura" class="w-full p-3 border border-input rounded-md" placeholder="Temperatura" value="298.15">
+                    </div>
+                    <button onclick="calcularPotencial()" class="w-full bg-primary text-primary-foreground py-3 rounded-md hover:bg-primary/90 font-medium">
+                        Calcular Potencial
+                    </button>
+                    <div id="resultadoPotencial" class="mt-4 p-4 bg-muted rounded-md hidden">
+                        <h4 class="font-semibold mb-2">Resultado:</h4>
+                        <p id="resultadoPotencialText"></p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getMolecularForm() {
+            return `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Fórmula Química</label>
+                        <input type="text" id="formulaQuimica" class="w-full p-3 border border-input rounded-md" placeholder="Ej: H2SO4, NaCl, CaCO3">
+                        <p class="text-xs text-muted-foreground mt-1">Ingrese la fórmula usando símbolos estándar (H, O, N, etc.)</p>
+                    </div>
+                    <button onclick="calcularPesoMolecular()" class="w-full bg-primary text-primary-foreground py-3 rounded-md hover:bg-primary/90 font-medium">
+                        Calcular Peso Molecular
+                    </button>
+                    <div id="resultadoMolecular" class="mt-4 p-4 bg-muted rounded-md hidden">
+                        <h4 class="font-semibold mb-2">Resultado:</h4>
+                        <p id="resultadoMolecularText"></p>
+                        <div id="desgloseElementos" class="mt-2 text-sm"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Calculator Functions
+        function calcularMiliequivalente() {
+            const pm = parseFloat(document.getElementById('pesoMolecular').value);
+            const ne = parseFloat(document.getElementById('numElectrones').value);
+            
+            if (isNaN(pm) || isNaN(ne) || ne === 0) {
+                alert('Por favor ingrese valores válidos');
+                return;
+            }
+            
+            const pmeq = pm / ne;
+            
+            document.getElementById('resultadoMiliequivalente').classList.remove('hidden');
+            document.getElementById('resultadoMiliequivalenteText').innerHTML = 
+                `<strong>Peso Miliequivalente:</strong> ${pmeq.toFixed(4)} g/meq<br>
+                 <small>PM: ${pm} g/mol ÷ ${ne} electrones = ${pmeq.toFixed(4)} g/meq</small>`;
+        }
+
+        function calcularNormalidad() {
+            const masa = parseFloat(document.getElementById('masaSoluto').value);
+            const pmeq = parseFloat(document.getElementById('pmeqNormalidad').value);
+            const volumen = parseFloat(document.getElementById('volumenSolucion').value);
+            
+            if (isNaN(masa) || isNaN(pmeq) || isNaN(volumen) || volumen === 0 || pmeq === 0) {
+                alert('Por favor ingrese valores válidos');
+                return;
+            }
+            
+            const normalidad = masa / (pmeq * volumen);
+            
+            document.getElementById('resultadoNormalidad').classList.remove('hidden');
+            document.getElementById('resultadoNormalidadText').innerHTML = 
+                `<strong>Normalidad:</strong> ${normalidad.toFixed(4)} N<br>
+                 <small>${masa} g ÷ (${pmeq} g/meq × ${volumen} L) = ${normalidad.toFixed(4)} N</small>`;
+        }
+
+        function calcularMiligramos() {
+            const volumen = parseFloat(document.getElementById('volumenGastado').value);
+            const normalidad = parseFloat(document.getElementById('normalidadTitulante').value);
+            const pmeq = parseFloat(document.getElementById('pmeqAnalito').value);
+            const factor = parseFloat(document.getElementById('factorDilucion').value) || 1;
+            
+            if (isNaN(volumen) || isNaN(normalidad) || isNaN(pmeq)) {
+                alert('Por favor ingrese valores válidos');
+                return;
+            }
+            
+            const miligramos = (volumen * normalidad * pmeq * factor) / 1000;
+            
+            document.getElementById('resultadoMiligramos').classList.remove('hidden');
+            document.getElementById('resultadoMiligramosText').innerHTML = 
+                `<strong>Miligramos de Analito:</strong> ${miligramos.toFixed(4)} mg<br>
+                 <small>(${volumen} mL × ${normalidad} N × ${pmeq} mg/meq × ${factor}) ÷ 1000</small>`;
+        }
+
+        function calcularPorcentaje() {
+            const mg = parseFloat(document.getElementById('mgAnalito').value);
+            const peso = parseFloat(document.getElementById('pesoMuestra').value);
+            
+            if (isNaN(mg) || isNaN(peso) || peso === 0) {
+                alert('Por favor ingrese valores válidos');
+                return;
+            }
+            
+            const porcentaje = (mg / (peso * 1000)) * 100;
+            
+            document.getElementById('resultadoPorcentaje').classList.remove('hidden');
+            document.getElementById('resultadoPorcentajeText').innerHTML = 
+                `<strong>Porcentaje de Analito:</strong> ${porcentaje.toFixed(4)} %<br>
+                 <small>(${mg} mg ÷ ${peso * 1000} mg muestra) × 100</small>`;
+        }
+
+        function calcularPotencial() {
+            const especie = document.getElementById('especieQuimica').value;
+            const concentracion = parseFloat(document.getElementById('concentracion').value);
+            const temperatura = parseFloat(document.getElementById('temperatura').value);
+            
+            if (!especie || isNaN(concentracion) || isNaN(temperatura)) {
+                alert('Por favor complete todos los campos');
+                return;
+            }
+            
+            const datos = compuestos[especie];
+            const R = 8.314; // J/(mol·K)
+            const F = 96485; // C/mol
+            const n = Math.abs(datos.carga);
+            
+            // Ecuación de Nernst: E = E° - (RT/nF) * ln(C)
+            const potencial = datos.potencial_estandar - (R * temperatura / (n * F)) * Math.log(concentracion);
+            
+            document.getElementById('resultadoPotencial').classList.remove('hidden');
+            document.getElementById('resultadoPotencialText').innerHTML = 
+                `<strong>Potencial:</strong> ${potencial.toFixed(4)} V<br>
+                 <strong>Potencial Estándar:</strong> ${datos.potencial_estandar} V<br>
+                 <small>Ecuación de Nernst aplicada a ${temperatura} K y ${concentracion} M</small>`;
+        }
+
+        function calcularPesoMolecular() {
+            const formula = document.getElementById('formulaQuimica').value.trim();
+            
+            if (!formula) {
+                alert('Por favor ingrese una fórmula química');
+                return;
+            }
+            
+            try {
+                const elementos = parseFormula(formula);
+                let pesoTotal = 0;
+                let desglose = '';
+                
+                for (const [elemento, cantidad] of Object.entries(elementos)) {
+                    if (!ETP[elemento]) {
+                        alert(`Elemento ${elemento} no encontrado en la tabla periódica`);
+                        return;
+                    }
+                    
+                    const pesoElemento = ETP[elemento] * cantidad;
+                    pesoTotal += pesoElemento;
+                    desglose += `${elemento}: ${ETP[elemento]} × ${cantidad} = ${pesoElemento.toFixed(4)} g/mol<br>`;
+                }
+                
+                document.getElementById('resultadoMolecular').classList.remove('hidden');
+                document.getElementById('resultadoMolecularText').innerHTML = 
+                    `<strong>Peso Molecular:</strong> ${pesoTotal.toFixed(4)} g/mol`;
+                document.getElementById('desgloseElementos').innerHTML = desglose;
+                
+            } catch (error) {
+                alert('Error al analizar la fórmula química. Verifique el formato.');
+            }
+        }
+
+        function parseFormula(formula) {
+            const elementos = {};
+            const regex = /([A-Z][a-z]?)(\d*)/g;
+            let match;
+            
+            while ((match = regex.exec(formula)) !== null) {
+                const elemento = match[1];
+                const cantidad = parseInt(match[2]) || 1;
+                elementos[elemento] = (elementos[elemento] || 0) + cantidad;
+            }
+            
+            return elementos;
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('calculatorModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCalculator();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -11,7 +11,7 @@ interface FormData {
 }
 
 export default function PesoMiliequivalente() {
-  const [resultado, setResultado] = useState<{ pmeq: number; formula: string } | null>(null);
+  const [resultado, setResultado] = useState<{ pmeq: number; formula: string; formulaGeneral: string; } | null>(null);
   
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
 
@@ -21,11 +21,12 @@ export default function PesoMiliequivalente() {
     if (numElectrones === 0) {
       return;
     }
-    
-    const pmeq = pesoMolecular / numElectrones;
-    const formula = `${pesoMolecular} g/mol ÷ ${numElectrones} electrones = ${pmeq.toFixed(4)} g/meq`;
-    
-    setResultado({ pmeq, formula });
+
+    const pmeq = pesoMolecular / (numElectrones * 1000);
+    const formulaGeneral = "PMeq = PM / (n × 1000)";
+    const formula = `${pesoMolecular} g/mol ÷ (${numElectrones} X 1000) equivalentes = ${pmeq.toFixed(4)} g/meq`;
+
+    setResultado({ pmeq, formula, formulaGeneral });
   };
 
   return (
@@ -50,12 +51,12 @@ export default function PesoMiliequivalente() {
         </div>
 
         <div>
-          <Label htmlFor="numElectrones">Número de Electrones</Label>
+          <Label htmlFor="numElectrones">Factor de equivalencia</Label>
           <Input
             id="numElectrones"
             type="number"
             min="1"
-            placeholder="Número de electrones transferidos"
+            placeholder="Factor de equivalencia"
             {...register("numElectrones", { 
               required: "Este campo es requerido",
               min: { value: 1, message: "Debe ser al menos 1 electrón" }
@@ -81,6 +82,9 @@ export default function PesoMiliequivalente() {
             </p>
             <p className="text-sm text-muted-foreground mt-1" data-testid="text-formula-pmeq">
               {resultado.formula}
+            </p>
+            <p className="text-sm text-muted-foreground mt-1" data-testid="text-formula-general-pmeq">
+              {resultado.formulaGeneral}
             </p>
           </CardContent>
         </Card>

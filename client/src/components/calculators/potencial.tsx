@@ -4,366 +4,332 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { compuestos } from "@/data/chemistry-data";
+import { compuestos, acidosComunes } from "@/data/chemistry-data";
 
 interface FormData {
-  concentracion1: number;
-  volumen1: number;
-  concentracion2: number;
-  volumen2: number;
+  concentracionRed: number;
+  volumenRed: number;
+  concentracionOx: number;
+  volumenOx: number;
+  medio: "acido" | "basico" | "neutro";
+  acidoSeleccionado?: string;
+  concAcido?: number;
+  volAcido?: number;
 }
 
 interface EspecieSeleccionada {
   nombre: string;
   potencial: number;
-  carga: number;
+  electrones: number;
 }
 
 interface ResultadoPotencial {
-  potencial: number;
-  especieRed: EspecieSeleccionada;
-  especieOx: EspecieSeleccionada;
-  numElectrones: number;
-  pmeqRed: number;
-  pmeqOx: number;
-  concRed: number;
-  volRed: number;
-  concOx: number;
-  volOx: number;
+  antesPE: number;
+  enPE: number;
+  especieRed: string;
+  especieOx: string;
+  numElectronesRed: number;
+  numElectronesOx: number;
+  medio: string;
+  acidoUtilizado?: string;
+  sustitucionAntes: string;
+  sustitucionEnPE: string;
+  formulaAntes?: string;
+  formulaEnPE?: string;
 }
 
 export default function Potencial() {
-  const [especie1, setEspecie1] = useState<EspecieSeleccionada | null>(null);
-  const [especie2, setEspecie2] = useState<EspecieSeleccionada | null>(null);
+  const [busquedaRed, setBusquedaRed] = useState("");
+  const [busquedaOx, setBusquedaOx] = useState("");
+  const [especieRed, setEspecieRed] = useState<EspecieSeleccionada | null>(null);
+  const [especieOx, setEspecieOx] = useState<EspecieSeleccionada | null>(null);
   const [resultado, setResultado] = useState<ResultadoPotencial | null>(null);
-  const [error, setError] = useState<string>("");
-  
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
+  const [error, setError] = useState("");
+
+  const { register, handleSubmit, watch, reset } = useForm<FormData>({
     defaultValues: {
-      concentracion1: 1.0,
-      volumen1: 50.0,
-      concentracion2: 1.0,
-      volumen2: 50.0
+      concentracionRed: 1.0,
+      volumenRed: 50.0,
+      concentracionOx: 1.0,
+      volumenOx: 50.0,
+      medio: "acido",
+      acidoSeleccionado: "H+",
+      concAcido: 1.0,
+      volAcido: 50.0
     }
   });
 
-  const seleccionarEspecie = (compuesto: string) => {
-    const datos = compuestos[compuesto];
-    const nuevaEspecie: EspecieSeleccionada = {
-      nombre: compuesto,
-      potencial: datos.potencial_estandar,
-      carga: datos.carga
-    };
+  const watchedValues = watch();
 
-    if (!especie1) {
-      setEspecie1(nuevaEspecie);
-    } else if (!especie2 && compuesto !== especie1.nombre) {
-      setEspecie2(nuevaEspecie);
-    }
+  const seleccionarEspecieRed = (compuesto: string) => {
+    const datos = compuestos[compuesto];
+    setEspecieRed({ nombre: compuesto, potencial: datos.potencial_estandar, electrones: datos.electrones });
   };
 
-  const limpiarSeleccion = () => {
-    setEspecie1(null);
-    setEspecie2(null);
+  const seleccionarEspecieOx = (compuesto: string) => {
+    const datos = compuestos[compuesto];
+    setEspecieOx({ nombre: compuesto, potencial: datos.potencial_estandar, electrones: datos.electrones });
+  };
+
+  const limpiar = () => {
+    setEspecieRed(null);
+    setEspecieOx(null);
     setResultado(null);
     setError("");
     reset();
   };
 
   const onSubmit = (data: FormData) => {
-    if (!especie1 || !especie2) {
-      setError("Debe seleccionar dos especies químicas");
-      return;
+    if (!especieRed || !especieOx) { setError("Debe seleccionar Reductor y Oxidante"); return; }
+
+    const nRed = especieRed.electrones;
+    const nOx = especieOx.electrones;
+
+    // Obtener coeficientes si existen
+    const coefRed = compuestos[especieRed.nombre].coeficiente || 1;
+    const coefOx = compuestos[especieOx.nombre].coeficiente || 1;
+
+    // Factores de ácido
+    let factorRed = 1, factorOx = 1;
+    if (data.medio === "acido" && data.acidoSeleccionado && data.concAcido && data.volAcido) {
+      const acido = acidosComunes[data.acidoSeleccionado];
+      if (acido) factorRed = factorOx = acido.protones;
     }
 
-    setError("");
+    const meqRed = data.concentracionRed * data.volumenRed;
+    const meqOx = data.concentracionOx * data.volumenOx;
 
-    try {
-      const { concentracion1, volumen1, concentracion2, volumen2 } = data;
+    
+    // Nernst Antes del PE
+    let antesPE = 0;
+    let sustitucionAntes = "";
+    let mlTotal = 0;
+    if (data.medio === "acido" && data.acidoSeleccionado && data.concAcido && data.volAcido) {
+      mlTotal = data.volumenRed + data.volumenOx + data.volAcido;
+    } else {
+      mlTotal = data.volumenRed + data.volumenOx;
+    }
 
-      // Determinar cuál es reductora y cuál oxidante basado en potencial estándar
-      let especieRed: EspecieSeleccionada;
-      let especieOx: EspecieSeleccionada;
-      let concRed: number;
-      let volRed: number;
-      let concOx: number;
-      let volOx: number;
-
-      if (especie1.potencial > especie2.potencial) {
-        especieRed = especie2;
-        especieOx = especie1;
-        concRed = concentracion2;
-        volRed = volumen2;
-        concOx = concentracion1;
-        volOx = volumen1;
+    if (meqRed > meqOx) {
+      // Sobra Reductor
+      const ratioAntes = (meqRed - meqOx) / meqOx;
+      const ratioBase = (meqRed-meqOx)/mlTotal;
+      if (coefRed > 1) {
+        const ratioCoef = Math.pow(ratioBase, coefRed);
+        antesPE = especieRed.potencial - (0.0592 / nRed) * Math.log10(ratioCoef / ratioBase);
+        sustitucionAntes = `E = ${especieRed.potencial.toFixed(3)} - (0.0592/${nRed}) × log((${data.concentracionRed}×${data.volumenRed}/${mlTotal} - ${data.concentracionOx}×${data.volumenOx}/${mlTotal})^${coefRed} / (${data.concentracionOx}×${data.volumenOx}/${mlTotal}))`;
+      }else {
+        antesPE = especieRed.potencial - (0.0592 / nRed) * Math.log10(ratioAntes);
+        sustitucionAntes = `E = ${especieRed.potencial.toFixed(3)} - (0.0592/${nRed}) × log((${data.concentracionRed} - ${data.concentracionOx}) / ${data.concentracionOx})`;
+      }
+    } else if (meqOx > meqRed) {
+      // Sobra Oxidante
+      const ratioAntes = meqOx/(meqOx-meqRed);
+      //const ratioBase = (meqRed-meqOx)/mlTotal;
+      if (coefOx > 1) {
+        //const ratioCoef = Math.pow(ratioBase, coefOx);
+        const numerador = Math.pow(meqRed/mlTotal, coefOx);
+        const denominador = (meqOx-meqRed)/mlTotal;
+        antesPE = especieOx.potencial - (0.0592 / nOx) * Math.log10(numerador / denominador);
+        sustitucionAntes = `E = ${especieOx.potencial.toFixed(3)} - (0.0592/${nOx}) × log((${data.concentracionRed}×${data.volumenRed}/${mlTotal})^${coefOx} / (${meqOx}-${meqRed}/${mlTotal}))`;
       } else {
-        especieRed = especie1;
-        especieOx = especie2;
-        concRed = concentracion1;
-        volRed = volumen1;
-        concOx = concentracion2;
-        volOx = volumen2;
+        antesPE = especieOx.potencial - (0.0592 / nOx) * Math.log10(ratioAntes);
+        sustitucionAntes = `E = ${especieOx.potencial.toFixed(3)} - (0.0592/${nOx}) × log((${meqOx}) / (${meqOx} - ${meqRed}))`;
       }
-
-      const numElectrones = Math.abs(especieRed.carga - especieOx.carga) || 1;
-      const pmeqRed = concRed * volRed;
-      const pmeqOx = concOx * volOx;
-
-      if (pmeqOx === 0) {
-        setError("El volumen o concentración de la especie oxidada no puede ser cero");
-        return;
-      }
-
-      if ((pmeqRed - pmeqOx) <= 0) {
-        setError("La cantidad de especie reductora debe ser mayor que la oxidante");
-        return;
-      }
-
-      // Fórmula: E = E° - (0.0592/n) * log10((pmeqRed - pmeqOx)/pmeqOx)
-      const potencial = especieRed.potencial - (0.0592 / numElectrones) * Math.log10((pmeqRed - pmeqOx) / pmeqOx);
-
-      setResultado({
-        potencial,
-        especieRed,
-        especieOx,
-        numElectrones,
-        pmeqRed,
-        pmeqOx,
-        concRed,
-        volRed,
-        concOx,
-        volOx
-      });
-
-    } catch (error) {
-      setError("Error en el cálculo: " + String(error));
+      
+    } else {
+      // En el PE
+      antesPE = (nRed * especieRed.potencial + nOx * especieOx.potencial) / (nRed + nOx);
+      sustitucionAntes =  `E = (${nRed}×${especieRed.potencial.toFixed(3)} + ${nOx}×${especieOx.potencial.toFixed(3)}) / (${nRed} + ${nOx})`;
     }
+
+    
+    // Nernst en PE
+    const enPE = (nRed * especieRed.potencial + nOx * especieOx.potencial) / (nRed  + nOx );
+    const sustitucionEnPE = `E = (${nRed}×${especieRed.potencial.toFixed(3)} + ${nOx}×${especieOx.potencial.toFixed(3)}) / (${nRed} + ${nOx})`;
+
+    // Formulas sin sustitución
+    const formulaAntes = `E = E°_Red - (0.0592 / nRed) × log([Red]/[Ox])`;
+    const formulaEnPE = `SE = (nRed × E°_Red + nOx × E°_Ox) / (nRed + nOx)`;
+
+
+    setResultado({
+      antesPE: isNaN(antesPE) ? especieRed.potencial : antesPE,
+      enPE: isNaN(enPE) ? (especieRed.potencial + especieOx.potencial)/2 : enPE,
+      especieRed: especieRed.nombre,
+      especieOx: especieOx.nombre,
+      numElectronesRed: nRed,
+      numElectronesOx: nOx,
+      medio: data.medio,
+      acidoUtilizado: data.medio === "acido" ? data.acidoSeleccionado : undefined,
+      sustitucionAntes: sustitucionAntes,
+      sustitucionEnPE: `E = (${nRed}×${especieRed.potencial.toFixed(3)} + ${nOx}×${especieOx.potencial.toFixed(3)}) / (${nRed} + ${nOx})`,
+      formulaAntes,
+      formulaEnPE
+    });
   };
 
-  const getButtonColor = (potencial: number) => {
-    return potencial < 0 ? "bg-red-100 hover:bg-red-200 text-red-800 border-red-300" : 
-           "bg-green-100 hover:bg-green-200 text-green-800 border-green-300";
-  };
 
-  const compuestosOrdenados = Object.entries(compuestos).sort(([, a], [, b]) => 
-    b.potencial_estandar - a.potencial_estandar
-  );
+  const compuestosFiltradosRed = Object.entries(compuestos)
+    .filter(([compuesto]) => compuesto.toLowerCase().includes(busquedaRed.toLowerCase()))
+    .slice(0, 10);
+
+  const compuestosFiltradosOx = Object.entries(compuestos)
+    .filter(([compuesto]) => compuesto.toLowerCase().includes(busquedaOx.toLowerCase()))
+    .slice(0, 10);
+
+  const getButtonColor = (potencial: number, seleccionado: boolean) =>
+    seleccionado
+      ? "bg-yellow-300 text-yellow-900 font-bold"
+      : potencial < 0
+        ? "bg-red-100 hover:bg-red-200 text-red-800"
+        : "bg-green-100 hover:bg-green-200 text-green-800";
 
   return (
-    <div className="space-y-6">
-      {/* Selección de Especies */}
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className={especie1 ? "border-blue-300 bg-blue-50" : ""}>
-            <CardContent className="p-4">
-              <h4 className="font-semibold text-blue-600 mb-2">🟦 Especie 1</h4>
-              {especie1 ? (
-                <div className="space-y-1">
-                  <p className="font-medium">{especie1.nombre}</p>
-                  <p className="text-sm">E°: {especie1.potencial} V</p>
-                  <p className="text-sm">Carga: {especie1.carga}</p>
-                </div>
-              ) : (
-                <p className="text-gray-500 text-sm">Ninguna selección</p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className={especie2 ? "border-red-300 bg-red-50" : ""}>
-            <CardContent className="p-4">
-              <h4 className="font-semibold text-red-600 mb-2">🟥 Especie 2</h4>
-              {especie2 ? (
-                <div className="space-y-1">
-                  <p className="font-medium">{especie2.nombre}</p>
-                  <p className="text-sm">E°: {especie2.potencial} V</p>
-                  <p className="text-sm">Carga: {especie2.carga}</p>
-                </div>
-              ) : (
-                <p className="text-gray-500 text-sm">Ninguna selección</p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Parámetros */}
-      {(especie1 || especie2) && (
+    <Card className="p-4 w-full max-w-3xl mx-auto mt-6">
+      <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h4 className="font-semibold text-blue-600">Parámetros Especie 1:</h4>
-              <div>
-                <Label htmlFor="concentracion1">Concentración (N)</Label>
-                <Input
-                  id="concentracion1"
-                  type="number"
-                  step="any"
-                  disabled={!especie1}
-                  {...register("concentracion1", { 
-                    required: "Campo requerido",
-                    min: { value: 0.001, message: "Debe ser mayor a 0" }
-                  })}
-                  data-testid="input-concentracion1"
-                />
-                {errors.concentracion1 && (
-                  <p className="text-sm text-destructive mt-1">{errors.concentracion1.message}</p>
-                )}
-              </div>
-              <div>
-                <Label htmlFor="volumen1">Volumen (mL)</Label>
-                <Input
-                  id="volumen1"
-                  type="number"
-                  step="any"
-                  disabled={!especie1}
-                  {...register("volumen1", { 
-                    required: "Campo requerido",
-                    min: { value: 0.001, message: "Debe ser mayor a 0" }
-                  })}
-                  data-testid="input-volumen1"
-                />
-                {errors.volumen1 && (
-                  <p className="text-sm text-destructive mt-1">{errors.volumen1.message}</p>
-                )}
-              </div>
-            </div>
 
-            <div className="space-y-4">
-              <h4 className="font-semibold text-red-600">Parámetros Especie 2:</h4>
-              <div>
-                <Label htmlFor="concentracion2">Concentración (N)</Label>
-                <Input
-                  id="concentracion2"
-                  type="number"
-                  step="any"
-                  disabled={!especie2}
-                  {...register("concentracion2", { 
-                    required: "Campo requerido",
-                    min: { value: 0.001, message: "Debe ser mayor a 0" }
-                  })}
-                  data-testid="input-concentracion2"
-                />
-                {errors.concentracion2 && (
-                  <p className="text-sm text-destructive mt-1">{errors.concentracion2.message}</p>
-                )}
-              </div>
-              <div>
-                <Label htmlFor="volumen2">Volumen (mL)</Label>
-                <Input
-                  id="volumen2"
-                  type="number"
-                  step="any"
-                  disabled={!especie2}
-                  {...register("volumen2", { 
-                    required: "Campo requerido",
-                    min: { value: 0.001, message: "Debe ser mayor a 0" }
-                  })}
-                  data-testid="input-volumen2"
-                />
-                {errors.volumen2 && (
-                  <p className="text-sm text-destructive mt-1">{errors.volumen2.message}</p>
-                )}
-              </div>
+          <div>
+            <Label>Reductor:</Label>
+            <Input value={busquedaRed} onChange={(e) => setBusquedaRed(e.target.value)} placeholder="Buscar Reductor..." />
+            <div className="flex flex-wrap gap-2 mt-1">
+              {compuestosFiltradosRed.map(([compuesto]) => (
+                <Button
+                  key={compuesto}
+                  type="button"
+                  className={getButtonColor(compuestos[compuesto].potencial_estandar, especieRed?.nombre === compuesto)}
+                  onClick={() => seleccionarEspecieRed(compuesto)}
+                >
+                  {compuesto}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <Label>Oxidante:</Label>
+            <Input value={busquedaOx} onChange={(e) => setBusquedaOx(e.target.value)} placeholder="Buscar Oxidante..." />
+            <div className="flex flex-wrap gap-2 mt-1">
+              {compuestosFiltradosOx.map(([compuesto]) => (
+                <Button
+                  key={compuesto}
+                  type="button"
+                  className={getButtonColor(compuestos[compuesto].potencial_estandar, especieOx?.nombre === compuesto)}
+                  onClick={() => seleccionarEspecieOx(compuesto)}
+                >
+                  {compuesto}
+                </Button>
+              ))}
             </div>
           </div>
 
           <div className="flex gap-4">
-            <Button 
-              type="submit" 
-              disabled={!especie1 || !especie2}
-              className="bg-green-600 hover:bg-green-700"
-              data-testid="button-calcular-potencial"
-            >
-              ⚡ Calcular Potencial
-            </Button>
-            <Button 
-              type="button" 
-              variant="outline"
-              onClick={limpiarSeleccion}
-              data-testid="button-limpiar-seleccion"
-            >
-              ♻ Limpiar Selección
-            </Button>
+            <div>
+              <Label>Concentración Reductor (N):</Label>
+              <Input type="number" step="0.00001" {...register("concentracionRed", { valueAsNumber: true })} />
+              <Label>Volumen Reductor (mL):</Label>
+              <Input type="number" step="0.00001" {...register("volumenRed", { valueAsNumber: true })} />
+            </div>
+            <div>
+              <Label>Concentración Oxidante (N):</Label>
+              <Input type="number" step="0.00001" {...register("concentracionOx", { valueAsNumber: true })} />
+              <Label>Volumen Oxidante (mL):</Label>
+              <Input type="number" step="0.00001" {...register("volumenOx", { valueAsNumber: true })} />
+            </div>
           </div>
 
-          {error && (
-            <div className="p-3 bg-red-100 border border-red-300 rounded text-red-700 text-sm">
-              ❌ {error}
+          <div>
+            <Label>Medio:</Label>
+            <select {...register("medio")}>
+              <option value="acido">Ácido</option>
+              <option value="basico">Básico</option>
+              <option value="neutro">Neutro</option>
+            </select>
+          </div>
+
+          {watchedValues.medio === "acido" && (
+            <div className="grid grid-cols-3 gap-4 mt-2">
+              <div>
+                <Label>Ácido:</Label>
+                <select {...register("acidoSeleccionado")}>
+                  {Object.entries(acidosComunes).map(([key, acido]) => (
+                    <option key={key} value={key}>{acido.nombre} ({acido.protones} H+)</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label>Concentración ácido:</Label>
+                <Input type="number" step="0.01" {...register("concAcido", { valueAsNumber: true })} />
+              </div>
+              <div>
+                <Label>Volumen ácido (mL):</Label>
+                <Input type="number" step="0.1" {...register("volAcido", { valueAsNumber: true })} />
+              </div>
             </div>
           )}
+
+          <div className="flex gap-4 mt-4">
+            <Button type="submit">Calcular Potencial</Button>
+            <Button type="button" variant="destructive" onClick={limpiar}>Limpiar</Button>
+          </div>
         </form>
-      )}
 
-      {/* Lista de Compuestos */}
-      <div>
-        <h4 className="font-semibold mb-4">📋 Lista de Compuestos Disponibles:</h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 max-h-80 overflow-y-auto border rounded p-4">
-          {compuestosOrdenados.map(([compuesto, datos]) => (
-            <Button
-              key={compuesto}
-              variant="outline"
-              size="sm"
-              onClick={() => seleccionarEspecie(compuesto)}
-              className={`text-left h-auto p-2 ${getButtonColor(datos.potencial_estandar)}`}
-              data-testid={`button-compuesto-${compuesto}`}
-            >
-              <div className="w-full">
-                <div className="font-medium text-xs">{compuesto}</div>
-                <div className="text-xs">E°: {datos.potencial_estandar} V</div>
-                <div className="text-xs">Carga: {datos.carga}</div>
-              </div>
-            </Button>
-          ))}
-        </div>
-      </div>
+        {error && <p className="text-red-600 mt-4">{error}</p>}
 
-      {/* Resultados */}
-      {resultado && (
-        <Card data-testid="result-potencial">
-          <CardContent className="p-6 bg-muted">
-            <h3 className="text-lg font-bold mb-4 text-blue-600">⚡ Resultados del Cálculo</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div className="bg-blue-50 p-4 rounded border">
-                <h4 className="font-semibold text-blue-600 mb-2">Especie Reductora</h4>
-                <div className="space-y-1 text-sm">
-                  <p><strong>Compuesto:</strong> {resultado.especieRed.nombre}</p>
-                  <p><strong>Potencial estándar (E°):</strong> {resultado.especieRed.potencial} V</p>
-                  <p><strong>Concentración:</strong> {resultado.concRed} N</p>
-                  <p><strong>Volumen:</strong> {resultado.volRed} mL</p>
-                  <p><strong>pmeq:</strong> {resultado.pmeqRed.toFixed(4)}</p>
-                  <p><strong>Carga:</strong> {resultado.especieRed.carga}</p>
+        {resultado && (
+          <div className="mt-6 space-y-4 p-4 bg-slate-50 rounded-lg">
+            <h2 className="text-lg font-bold border-b pb-2">Resultados:</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div className="bg-blue-50 p-3 rounded border border-blue-200">
+                  <p className="font-semibold text-xs text-blue-700">Reductor Seleccionado</p>
+                  <p className="text-sm font-bold text-blue-900">{resultado.especieRed} ({resultado.numElectronesRed} e⁻)</p>
+                </div>
+
+                <div className="bg-blue-50 p-3 rounded border border-blue-200">
+                  <p className="font-semibold text-xs text-blue-700">Oxidante Seleccionado</p>
+                  <p className="text-sm font-bold text-blue-900">{resultado.especieOx} ({resultado.numElectronesOx} e⁻)</p>
+                </div>
+
+                <div className="bg-green-50 p-3 rounded border border-green-200">
+                  <p className="font-semibold text-xs text-green-700">Medio</p>
+                  <p className="text-sm font-bold text-green-900">
+                    {resultado.medio === "acido" ? `Ácido (${resultado.acidoUtilizado})` :
+                      resultado.medio === "basico" ? "Básico" : "Neutro"}
+                  </p>
                 </div>
               </div>
 
-              <div className="bg-red-50 p-4 rounded border">
-                <h4 className="font-semibold text-red-600 mb-2">Especie Oxidante</h4>
-                <div className="space-y-1 text-sm">
-                  <p><strong>Compuesto:</strong> {resultado.especieOx.nombre}</p>
-                  <p><strong>Potencial estándar (E°):</strong> {resultado.especieOx.potencial} V</p>
-                  <p><strong>Concentración:</strong> {resultado.concOx} N</p>
-                  <p><strong>Volumen:</strong> {resultado.volOx} mL</p>
-                  <p><strong>pmeq:</strong> {resultado.pmeqOx.toFixed(4)}</p>
-                  <p><strong>Carga:</strong> {resultado.especieOx.carga}</p>
+              <div className="space-y-3">
+                <div className="p-3 bg-blue-50 rounded border border-blue-200">
+                  <p className="font-semibold text-sm text-blue-700">Potencial Electrico</p>
+                  <p className="text-lg font-bold text-blue-900">{resultado.antesPE.toFixed(3)} V</p>
+                  <p className="text-xs text-gray-600 break-words">{resultado.sustitucionAntes}</p>
+                </div>
+
+                <div className="p-3 bg-yellow-50 rounded border border-yellow-200">
+                  <p className="font-semibold text-sm text-yellow-700">Fórmula general Potencial Electrico</p>
+                  <p className="text-xs text-gray-600 break-words">{resultado.formulaAntes}</p>
+                </div>
+
+                <div className="p-3 bg-green-50 rounded border border-green-300 shadow-md">
+                  <p className="font-semibold text-sm text-green-700">En el Punto de Equivalencia</p>
+                  <p className="text-xl font-bold text-green-900">{resultado.enPE.toFixed(3)} V</p>
+                  <p className="text-xs text-gray-600 break-words">{resultado.sustitucionEnPE}</p>
+                </div>
+
+                <div className="p-3 bg-yellow-50 rounded border border-yellow-200">
+                  <p className="font-semibold text-sm text-yellow-700">Fórmula general En el PE</p>
+                  <p className="text-xs text-gray-600 break-words">{resultado.formulaEnPE}</p>
                 </div>
               </div>
             </div>
+          </div>
+        )}
 
-            <div className="bg-green-50 p-4 rounded border">
-              <h4 className="font-semibold text-green-600 mb-2">Detalles del Cálculo</h4>
-              <div className="space-y-1 text-sm">
-                <p><strong>Electrones transferidos (n):</strong> {resultado.numElectrones}</p>
-                <p><strong>Ecuación:</strong> E = E° - (0.0592/n) × log[(pmeq_Red - pmeq_Ox)/pmeq_Ox]</p>
-                <p><strong>Cálculo:</strong> E = {resultado.especieRed.potencial} - (0.0592/{resultado.numElectrones}) × log[({resultado.pmeqRed.toFixed(4)}-{resultado.pmeqOx.toFixed(4)})/{resultado.pmeqOx.toFixed(4)}]</p>
-              </div>
-              <h3 className="text-lg font-bold mt-3 text-orange-600" data-testid="text-resultado-potencial">
-                Potencial calculado: {resultado.potencial.toFixed(4)} V
-              </h3>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+      </CardContent>
+    </Card>
   );
 }

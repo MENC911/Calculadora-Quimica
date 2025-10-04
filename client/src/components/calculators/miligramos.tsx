@@ -16,10 +16,10 @@ interface FormData {
 }
 
 export default function Miligramos() {
-  const [resultado, setResultado] = useState<{ miligramos: number; formula: string } | null>(null);
+  const [resultado, setResultado] = useState<{ miligramos: number; formula: string; formulaGeneral: string } | null>(null);
   const [usarDilucion, setUsarDilucion] = useState(false);
   
-  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors }, watch, setValue, setError, clearErrors } = useForm<FormData>({
     defaultValues: {
       usarDilucion: false,
       aforo: 100,
@@ -31,29 +31,40 @@ export default function Miligramos() {
 
   const onSubmit = (data: FormData) => {
     const { volumenGastado, normalidadTitulante, pmeqAnalito, usarDilucion, aforo, alicuota } = data;
+
+    // Validación: alícuota no puede ser mayor que el aforo
+    if (usarDilucion && alicuota > aforo) {
+      setError("alicuota", { type: "manual", message: "La alícuota no puede ser mayor que el aforo" });
+      return;
+    } else {
+      clearErrors("alicuota");
+    }
     
     let miligramos: number;
     let formula: string;
+    let formulaGeneral: string;
     
     if (usarDilucion) {
       // Fórmula con dilución: mg = (N × mL × pmeq × (aforo/alícuota) × 1000)
       const factorDilucion = aforo / alicuota;
       miligramos = (normalidadTitulante * volumenGastado * pmeqAnalito * factorDilucion * 1000);
       formula = `(${normalidadTitulante} N × ${volumenGastado} mL × ${pmeqAnalito} mg/meq × (${aforo}/${alicuota}) × 1000)`;
+      formulaGeneral = "mg = N × V × PMEq × (aforo / alícuota) × 1000";
     } else {
-      // Fórmula sin dilución: mg = (N × mL × pmeq)
-      miligramos = (normalidadTitulante * volumenGastado * pmeqAnalito);
-      formula = `(${normalidadTitulante} N × ${volumenGastado} mL × ${pmeqAnalito} mg/meq)`;
+      // Fórmula sin dilución (corregida): mg = (N × mL × pmeq × 1000)
+      miligramos = (normalidadTitulante * volumenGastado * pmeqAnalito * 1000);
+      formula = `(${normalidadTitulante} N × ${volumenGastado} mL × ${pmeqAnalito} mg/meq × 1000)`;
+      formulaGeneral = "mg = N × V × PMEq × 1000";
     }
     
-    setResultado({ miligramos, formula });
+    setResultado({ miligramos, formula, formulaGeneral });
   };
 
   return (
     <div className="space-y-4">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
-          <Label htmlFor="volumenGastado">Volumen Gastado (mL)</Label>
+          <Label htmlFor="volumenGastado">Volumen Gastado del Titulante (mL)</Label>
           <Input
             id="volumenGastado"
             type="number"
@@ -173,9 +184,16 @@ export default function Miligramos() {
             <p className="text-lg font-bold" data-testid="text-resultado-miligramos">
               Miligramos de Analito: {resultado.miligramos.toFixed(4)} mg
             </p>
+            {/* Fórmula con valores substituidos (lo que ya tenías) */}
             <p className="text-sm text-muted-foreground mt-1" data-testid="text-formula-miligramos">
               {resultado.formula}
             </p>
+
+            {/* Nueva: Fórmula general usada (sin sustituir valores), depende de si se usó dilución */}
+            <div className="mt-3 p-2 border rounded bg-gray-100 text-sm" data-testid="text-formula-general">
+              <h4 className="font-semibold text-gray-700 mb-1">📐 Fórmula general usada</h4>
+              <p>{resultado.formulaGeneral}</p>
+            </div>
           </CardContent>
         </Card>
       )}

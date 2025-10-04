@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { ETP, parseFormula } from "@/data/chemistry-data";
+import { ETP } from "@/data/chemistry-data"; // Tabla periódica con pesos atómicos
 
 interface FormData {
   formulaQuimica: string;
@@ -15,43 +15,73 @@ interface ResultadoMolecular {
   elementos: Record<string, { cantidad: number; pesoElemento: number; pesoAtomico: number }>;
 }
 
+// Función para parsear fórmulas con paréntesis
+function parseFormula(formula: string): Record<string, number> {
+  const stack: Array<Record<string, number>> = [{}];
+  const regex = /([A-Z][a-z]?)(\d*)|(\()|(\))(\d*)/g;
+  let match;
+
+  while ((match = regex.exec(formula)) !== null) {
+    if (match[1]) {
+      // Elemento químico
+      const elem = match[1];
+      const count = parseInt(match[2] || "1", 10);
+      const top = stack[stack.length - 1];
+      top[elem] = (top[elem] || 0) + count;
+    } else if (match[3]) {
+      // "(" abre un nuevo grupo
+      stack.push({});
+    } else if (match[4]) {
+      // ")" cierra un grupo
+      const group = stack.pop()!;
+      const multiplier = parseInt(match[5] || "1", 10);
+      const top = stack[stack.length - 1];
+      for (const [elem, count] of Object.entries(group)) {
+        top[elem] = (top[elem] || 0) + count * multiplier;
+      }
+    }
+  }
+
+  return stack[0];
+}
+
 export default function PesoMolecular() {
   const [resultado, setResultado] = useState<ResultadoMolecular | null>(null);
   const [error, setError] = useState<string>("");
-  
+
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
 
   const onSubmit = (data: FormData) => {
     const { formulaQuimica } = data;
     setError("");
-    
+
     try {
       const elementos = parseFormula(formulaQuimica.trim());
       let pesoTotal = 0;
       const elementosDetalle: Record<string, { cantidad: number; pesoElemento: number; pesoAtomico: number }> = {};
-      
+
       for (const [elemento, cantidad] of Object.entries(elementos)) {
         if (!ETP[elemento]) {
           setError(`Elemento ${elemento} no encontrado en la tabla periódica`);
           return;
         }
-        
+
         const pesoAtomico = ETP[elemento];
         const pesoElemento = pesoAtomico * cantidad;
         pesoTotal += pesoElemento;
-        
+
         elementosDetalle[elemento] = {
           cantidad,
           pesoElemento,
           pesoAtomico
         };
       }
-      
+
       setResultado({
         pesoTotal,
         elementos: elementosDetalle
       });
-      
+
     } catch (error) {
       setError("Error al analizar la fórmula química. Verifique el formato.");
     }
@@ -65,18 +95,18 @@ export default function PesoMolecular() {
           <Input
             id="formulaQuimica"
             type="text"
-            placeholder="Ej: H2SO4, NaCl, CaCO3"
+            placeholder="Ej: H2SO4, NaCl, (NH4)2SO4"
             {...register("formulaQuimica", { 
               required: "Este campo es requerido",
               pattern: {
-                value: /^[A-Z][a-z]?(\d*[A-Z][a-z]?\d*)*$/,
+                value: /^[A-Za-z0-9()]+$/,
                 message: "Formato de fórmula química inválido"
               }
             })}
             data-testid="input-formula-quimica"
           />
           <p className="text-xs text-muted-foreground mt-1">
-            Ingrese la fórmula usando símbolos estándar (H, O, N, etc.)
+            Ingrese la fórmula usando símbolos estándar (H, O, N, etc.), puede usar paréntesis.
           </p>
           {errors.formulaQuimica && (
             <p className="text-sm text-destructive mt-1">{errors.formulaQuimica.message}</p>

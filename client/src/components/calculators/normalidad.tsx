@@ -12,7 +12,11 @@ interface FormData {
 }
 
 export default function Normalidad() {
-  const [resultado, setResultado] = useState<{ normalidad: number; formula: string } | null>(null);
+  const [resultado, setResultado] = useState<{
+    normalidad: number;
+    formula: string;
+    formulaGeneral: string;
+  } | null>(null);
   
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
 
@@ -20,9 +24,10 @@ export default function Normalidad() {
     const { masaSoluto, pmeq, volumenSolucion } = data;
     
     const normalidad = masaSoluto / (pmeq * volumenSolucion);
-    const formula = `${masaSoluto} g ÷ (${pmeq} g/meq × ${volumenSolucion} L) = ${normalidad.toFixed(4)} N`;
-    
-    setResultado({ normalidad, formula });
+    const formulaGeneral = "N = masa del soluto / (PMeq × volumen de solución)";
+    const formula = `${masaSoluto} g ÷ (${pmeq} g/meq × ${volumenSolucion} mL) = ${normalidad.toFixed(4)} N`;
+
+    setResultado({ normalidad, formula, formulaGeneral });
   };
 
   return (
@@ -65,12 +70,12 @@ export default function Normalidad() {
         </div>
 
         <div>
-          <Label htmlFor="volumenSolucion">Volumen de Solución (L)</Label>
+          <Label htmlFor="volumenSolucion">Volumen de Solución (mL)</Label>
           <Input
             id="volumenSolucion"
             type="number"
             step="any"
-            placeholder="Volumen en litros"
+            placeholder="Volumen en mililitros"
             {...register("volumenSolucion", { 
               required: "Este campo es requerido",
               min: { value: 0.001, message: "El valor debe ser mayor a 0" }
@@ -96,6 +101,9 @@ export default function Normalidad() {
             </p>
             <p className="text-sm text-muted-foreground mt-1" data-testid="text-formula-normalidad">
               {resultado.formula}
+            </p>
+            <p className="text-sm text-muted-foreground mt-1" data-testid="text-formula-general-normalidad">
+              {resultado.formulaGeneral}
             </p>
           </CardContent>
         </Card>
