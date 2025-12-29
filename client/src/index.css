@@ -109,3 +109,13 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+footer {
+  background-color: #007BFF; 
+  color: white;
+  text-align: right;
+  padding: 15px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  font-family: Arial, sans-serif;
+}
